@@ -8,6 +8,31 @@
 
 <body>
     <h1>SP360Converter</h1>
+
+    <div>
+        <button onclick="test()">Test Run</button>
+    </div>
+    <div>
+        <canvas id="screen" width="300" height="200"></canvas>
+    </div>
+    <script>
+        var remote = require('remote');
+        var converter = remote.require('./build/Release/convert');
+
+        function test() {
+            /*
+            var canvas = document.getElementById('screen');
+            var context = canvas.getContext('2d');
+            var imageData = context.createImageData(300, 200);
+            mandelbrot.mandelbrot(imageData.data);
+            context.putImageData(imageData, 0, 0);
+            */
+            console.log("test");
+            converter.convert();
+        }
+    </script>
+
+</div>
 </body>
 
 </html>
