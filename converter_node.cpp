@@ -5,11 +5,8 @@
 #include <uv.h>
 #include <string>
 #include <iostream>
-#include "converter.h"
-
 #include <functional>
-
-#include "unistd.h"
+#include "converter.h"
 
 using namespace v8;
 
@@ -33,16 +30,22 @@ struct Work {
   double progress;
 };
 
+
 void call_node_callback(Work* work) {
     Isolate * isolate = Isolate::GetCurrent();
     v8::HandleScope handleScope(isolate); // Required for Node 4.x
-
-    Local<Primitive> error  = v8::Null(isolate);
-    Local<Primitive> status = v8::Null(isolate);
-    Local<Number> progress  = v8::Number::New(isolate, work->progress);
+    Local<Primitive> error;
+    if (work->error == "") {
+        error = v8::Null(isolate);
+    } else {
+        error = v8::String::NewFromUtf8(isolate, work->error.c_str());
+    }
+    Local<Value> status = v8::String::NewFromUtf8(isolate, work->status.c_str());
+    Local<Number> progress = v8::Number::New(isolate, work->progress);
     Handle<Value> argv[] = { error, status, progress };
     Local<Function>::New(isolate, work->callback)->Call(isolate->GetCurrentContext()->Global(), 3, argv);
 }
+
 
 void convert_progress(uv_async_t *handle) {
     Work *work = static_cast<Work *>(handle->data);
@@ -52,12 +55,11 @@ void convert_progress(uv_async_t *handle) {
 
 void convert_async(uv_work_t *req) {
     Work *work = static_cast<Work *>(req->data);
-
-    std::function<void(float)> callback = [&work](float progress){
+    work->status = "progress";
+    std::function<void(float)> progress_callback = [&work](float progress){
         work->progress = progress;
         uv_async_send(&work->progress_async);
     };
-
     convert(work->src_file,
             work->dst_file,
             work->dst_width,
@@ -67,7 +69,7 @@ void convert_async(uv_work_t *req) {
             work->n_split,
             work->start_theta,
             work->end_theta,
-            callback
+            progress_callback
         );
 }
 
@@ -75,8 +77,8 @@ void convert_async(uv_work_t *req) {
 void convert_after(uv_work_t *req, int status)
 {
     Work *work = static_cast<Work *>(req->data);
+    work->status = "successed";
     call_node_callback(work);
-
     work->callback.Reset();
     uv_close((uv_handle_t*) &work->progress_async, NULL);
     delete work;
@@ -109,7 +111,6 @@ void convert_method(const v8::FunctionCallbackInfo<v8::Value>& args) {
     work->start_theta = start_theta;
     work->end_theta   = end_theta;
     work->callback.Reset(isolate, callback);
-
     work->request.data = work;
     work->progress_async.data = work;
 
