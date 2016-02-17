@@ -32,7 +32,7 @@ void convert_frame(Mat src_frame, Mat dst_frame, double start_theta, double end_
 }
 
 
-void convert(std::string src_file, std::string dst_file,
+int convert(std::string src_file, std::string dst_file,
              int dst_width, int dst_height,
              int start_time, int end_time,
              int n_split,
@@ -46,19 +46,23 @@ void convert(std::string src_file, std::string dst_file,
     int fourcc = VideoWriter::fourcc('a','v','c','1');
     VideoWriter writer(dst_file.c_str(), fourcc, fps, Size(dst_width, dst_height));
 
+    cap.set(CAP_PROP_POS_MSEC, start_time);
     Mat frame;
-    for (int i = 0; i <= end_time*fps; i++) {
+    while (1) {
+        double current_pos = cap.get(CV_CAP_PROP_POS_MSEC);
+        if (current_pos > end_time) {
+            break;
+        }
         cap >> frame;
-        if( i < start_time*fps)
-            continue;
         if( frame.empty() )
             break;
         Mat new_frame = Mat(dst_height, dst_width, frame.type());
         convert_frame(frame, new_frame, start_theta, end_theta, n_split);
         writer << new_frame;
-        callback(float(i)/fps);
+        float progress = (current_pos - start_time) / (end_time - start_time);
+        callback(progress);
     }
-    callback(1.0);
+    return 0;
 }
 
 

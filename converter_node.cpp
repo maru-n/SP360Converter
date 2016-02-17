@@ -27,6 +27,9 @@ struct Work {
   int n_split;
   double start_theta;
   double end_theta;
+
+  std::string error;
+  std::string status;
   double progress;
 };
 
@@ -86,13 +89,13 @@ void convert_method(const v8::FunctionCallbackInfo<v8::Value>& args) {
     Handle<Object> data = Handle<Object>::Cast(args[0]);
     std::string src_file("/Users/maruyama/Desktop/SP360Converter/sample/SP01_04.MP4");
     std::string dst_file("/Users/maruyama/Desktop/SP360Converter/test.mp4");
-    int start_time = data->Get(String::NewFromUtf8(isolate,"start_time"))->NumberValue();
-    int end_time = data->Get(String::NewFromUtf8(isolate,"end_time"))->NumberValue();
-    int dst_width = 1280;
-    int dst_height = 720;
-    int n_split = 2;
-    double start_theta = 0. * M_PI;
-    double end_theta = 2. * M_PI;
+    int start_time     = data->Get(String::NewFromUtf8(isolate,"start_time"))->NumberValue();
+    int end_time       = data->Get(String::NewFromUtf8(isolate,"end_time"))->NumberValue();
+    int dst_width      = data->Get(String::NewFromUtf8(isolate,"dst_width"))->NumberValue();
+    int dst_height     = data->Get(String::NewFromUtf8(isolate,"dst_height"))->NumberValue();
+    int n_split        = data->Get(String::NewFromUtf8(isolate,"n_split"))->NumberValue();
+    double start_theta = data->Get(String::NewFromUtf8(isolate,"start_theta"))->NumberValue();
+    double end_theta   = data->Get(String::NewFromUtf8(isolate,"end_theta"))->NumberValue();
     Local<Function> callback = Local<Function>::Cast(args[1]);
 
     Work* work = new Work();

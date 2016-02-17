@@ -129,8 +129,13 @@
 
 
             var x = converter.convert({
-                start_time:0,
-                end_time:5,
+                start_time:  1290000,
+                end_time:    1294000,
+                dst_width:   1280,
+                dst_height:  720,
+                n_split:     2,
+                start_theta: 0.0 * Math.PI,
+                end_theta:   2.0 * Math.PI
             }, function(err, status, progress){
                 console.log(status);
                 console.log(progress);
