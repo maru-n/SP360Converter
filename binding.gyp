@@ -1,7 +1,19 @@
 {
     "targets": [{
-        "target_name": "convert",
-        "sources": ["convert.cpp"],
+        "target_name": "converter",
+        "sources": [ "converter_node.cpp" , "converter.cpp" ],
+        "cflags": [
+            "-Wall"
+            "-std=c++11",
+            "-stdlib=libc++"
+        ],
+        'xcode_settings': {
+            'MACOSX_DEPLOYMENT_TARGET': '10.8',
+            'OTHER_CFLAGS': [
+                '-std=c++11',
+                '-stdlib=libc++'
+            ]
+        },
         "link_settings": {
             "libraries": [
                 "/usr/local/lib/libopencv_shape.dylib",
@@ -22,6 +34,5 @@
                 "/usr/local/lib/libopencv_core.dylib",
             ],
         },
-    }
-    ],
+     }]
 }

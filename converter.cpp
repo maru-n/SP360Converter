@@ -1,0 +1,101 @@
+#include "converter.h"
+
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include <opencv2/opencv.hpp>
+#include <iostream>
+
+using namespace cv;
+
+void convert_frame(Mat src_frame, Mat dst_frame, double start_theta, double end_theta, int n_split)
+{
+    double R = src_frame.cols / 2.;
+    int w = double(dst_frame.cols);
+    int h = double(dst_frame.rows);
+    int pan_w = w * n_split;
+    int pan_h = h / n_split;
+
+    int split_row;
+    double pan_i, pan_j, r, th, src_i, src_j;
+    for (int i = 0; i < w; i++) {
+        for (int j = 0; j < h; j++) {
+            split_row = j * n_split / h;
+            pan_i = i + w * split_row;
+            pan_j = j - h * split_row / n_split;
+            r = R * pan_j / pan_h;
+            th = start_theta + (end_theta - start_theta) * pan_i / pan_w;
+            src_i = R + r * cos(th);
+            src_j = R - r * sin(th);
+            dst_frame.at<Vec3b>(Point(i, j)) = src_frame.at<Vec3b>(Point(src_i,src_j));
+        }
+    }
+}
+
+
+void convert(std::string src_file, std::string dst_file,
+             int dst_width, int dst_height,
+             int start_time, int end_time,
+             int n_split,
+             double start_theta, double end_theta,
+             std::function<void(float)> callback)
+{
+    using namespace cv;
+    VideoCapture cap(src_file.c_str());
+
+    double fps = cap.get(CAP_PROP_FPS);
+    int fourcc = VideoWriter::fourcc('a','v','c','1');
+    VideoWriter writer(dst_file.c_str(), fourcc, fps, Size(dst_width, dst_height));
+
+    Mat frame;
+    for (int i = 0; i <= end_time*fps; i++) {
+        cap >> frame;
+        if( i < start_time*fps)
+            continue;
+        if( frame.empty() )
+            break;
+        Mat new_frame = Mat(dst_height, dst_width, frame.type());
+        convert_frame(frame, new_frame, start_theta, end_theta, n_split);
+        writer << new_frame;
+        callback(float(i)/fps);
+    }
+    callback(1.0);
+}
+
+
+/*
+int main(int argc, char const *argv[]) {
+    std::string src_file(argv[1]);
+    std::string dst_file(argv[2]);
+    // Original
+    // int ASPECT = 1.5;
+    // int SCALE = 1.0;
+    // int src_size = (int)cap.get(CAP_PROP_FRAME_WIDTH);
+    // double R = src_size / 2.;
+    // int dst_width = int(2.0*M_PI*R*SCALE/ASPECT);
+    // int dst_height = int(R * SCALE);
+
+    // HD (720p)
+    int dst_width = 1280;
+    int dst_height = 720;
+
+    // Full-HD (1080p)
+    // int dst_width = 1920;
+    // int dst_height = 1080;
+
+    int start_time = atoi(argv[3]);
+    int end_time = atoi(argv[4]);
+    int n_split = atoi(argv[5]);
+    double start_theta = atof(argv[6]) * M_PI;
+    double end_theta = atof(argv[7]) * M_PI;
+    convert(src_file, dst_file,
+            dst_width, dst_height,
+            start_time, end_time,
+            n_split,
+            start_theta,
+            end_theta,
+            [](float progress){
+        std::cout << progress << std::endl;
+    });
+    return 0;
+}
+*/
