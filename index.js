@@ -12,6 +12,15 @@ function($scope, $q, electron) {
 
     $scope.src_file = "";
     $scope.dst_file = "";
+    $scope.start_time  = 0;
+    $scope.end_time    = 1000;
+    $scope.dst_width   = 1280;
+    $scope.dst_height  = 720;
+    $scope.n_split     = 2;
+    $scope.start_angle = 0;
+    $scope.end_angle   = 360;
+
+
     $scope.convert_progress = 0.0;
 
     $scope.openFile = function() {
@@ -41,13 +50,13 @@ function($scope, $q, electron) {
             converter.convert({
                 src_file:    $scope.src_file,
                 dst_file:    $scope.dst_file,
-                start_time:  0,
-                end_time:    1000,
-                dst_width:   1280,
-                dst_height:  720,
-                n_split:     2,
-                start_theta: 0.0 * Math.PI,
-                end_theta:   2.0 * Math.PI
+                start_time:  $scope.start_time,
+                end_time:    $scope.end_time,
+                dst_width:   $scope.dst_width,
+                dst_height:  $scope.dst_height,
+                n_split:     $scope.n_split,
+                start_angle: $scope.start_angle * 2.0 * Math.PI / 360.0,
+                end_angle:   $scope.end_angle * 2.0 * Math.PI / 360.0,
             }, function(err, status, progress){
                 if (err) {
                     deferred.reject(err);
@@ -61,7 +70,7 @@ function($scope, $q, electron) {
             });
         });
         deferred.promise.then(function(){
-            $scope.converter_progress = 0.0;
+            $scope.convert_progress = 0.0;
         }, function(error){
             console.error(error);
         }, function(progress){
