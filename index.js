@@ -20,7 +20,8 @@ function($scope, $q, electron) {
     $scope.angle_end   = 360;
     $scope.radius_in   = 0.0;
     $scope.radius_out  = 1.0
-    $scope.n_split     = 1;
+    $scope.n_split_choice = [1, 2, 3];
+    $scope.n_split     = $scope.n_split_choice[0];
     $scope.resolutions = [
         {name:'VGA          640x480 ', width:640, height:480 },
         {name:'SVGA         800x600 ', width:800, height:600 },
