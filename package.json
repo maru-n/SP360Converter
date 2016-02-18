@@ -8,5 +8,8 @@
     },
     "keywords": [],
     "author": "Norihiro Maruyama",
-    "license": ""
+    "license": "",
+    "dependencies": {
+        "electron-prebuilt": "^0.36.7"
+    }
 }
