@@ -1,9 +1,8 @@
 'use strict';
 
-var app = require('app');
-var BrowserWindow = require('browser-window');
-
-require('crash-reporter').start();
+const electron = require('electron');
+const app = electron.app;
+const BrowserWindow = electron.BrowserWindow;
 
 var mainWindow = null;
 
@@ -12,11 +11,16 @@ app.on('window-all-closed', function() {
         app.quit();
     }
 });
-
 app.on('ready', function() {
-    mainWindow = new BrowserWindow({width: 800, height: 600});
+    mainWindow = new BrowserWindow({
+        'min-width': 800,
+        'min-height': 600
+    });
     mainWindow.loadURL('file://' + __dirname + '/index.html');
+    mainWindow.webContents.openDevTools();
     mainWindow.on('closed', function() {
         mainWindow = null;
     });
 });
+
+app.commandLine.appendSwitch("--enable-experimental-web-platform-features");

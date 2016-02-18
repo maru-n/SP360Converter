@@ -78,6 +78,7 @@ void convert_after(uv_work_t *req, int status)
 {
     Work *work = static_cast<Work *>(req->data);
     work->status = "successed";
+    work->progress = 1.0;
     call_node_callback(work);
     work->callback.Reset();
     uv_close((uv_handle_t*) &work->progress_async, NULL);

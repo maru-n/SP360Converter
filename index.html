@@ -1,25 +1,19 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="UTF-8">
     <title>SP360Converter</title>
 </head>
 
 <body>
-    <h1>SP360Converter</h1>
-
     <div>
-        <button onclick="openFile()">開く</button>
+        <button type="button" class="btn btn-primary-outline" onclick="openFile()">開く</button>
     </div>
 
     <div>
-        <button onclick="convert()">変換</button>
+        <button type="button" class="btn btn-primary-outline" onclick="convert()">変換</button>
     </div>
 
-    <div>
-        <canvas id="screen" width="300" height="200"></canvas>
-    </div>
     <script>
         var remote = require('remote');
         var converter = remote.require('./build/Release/converter');
