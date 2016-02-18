@@ -4,8 +4,11 @@
     <head>
         <meta charset="UTF-8">
         <title>SP360Converter</title>
+        <link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+        <link href="index.css" rel="stylesheet">
         <script src="bower_components/angular/angular.js"></script>
         <script src="bower_components/ng-electron/ng-electron.js"></script>
+        <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
         <script src="index.js"></script>
     </head>
 
@@ -60,11 +63,14 @@
         </div>
 
         <div>
-            <button type="button" class="btn btn-primary-outline" ng-click="convert()">変換</button>
+            <button type="button" class="btn btn-primary-outline" ng-disabled="isConverting()" ng-click="convert()">変換</button>
             <span>{{dst_file}}</span>
         </div>
-        <div>
-            <span>{{convert_progress}}</span>
+
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuenow="{{getConvertProgresPercentage()}}" aria-valuemin="0" aria-valuemax="1" style="width: {{getConvertProgresPercentage()}}%;">
+                {{getConvertProgresPercentageByInt()}}%
+            </div>
         </div>
     </body>
 

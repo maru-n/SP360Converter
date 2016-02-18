@@ -3,7 +3,7 @@
 var remote = require('remote');
 var converter = remote.require('./build/Release/converter');
 
-var SP360Converter = angular.module('SP360Converter', ['ngElectron']);
+var SP360Converter = angular.module('SP360Converter', ['ngElectron', 'ui.bootstrap']);
 
 SP360Converter.controller('MainController', ['$scope', '$q', 'electron',
 function($scope, $q, electron) {
@@ -33,6 +33,18 @@ function($scope, $q, electron) {
     $scope.resolution = $scope.resolutions[0];
 
     $scope.convert_progress = 0.0;
+
+    $scope.getConvertProgresPercentage = function() {
+        return $scope.convert_progress * 100;
+    };
+
+    $scope.getConvertProgresPercentageByInt = function() {
+        return Math.ceil($scope.getConvertProgresPercentage());
+    }
+
+    $scope.isConverting = function() {
+        return (0.0 < $scope.convert_progress) && ($scope.convert_progress<1.0);
+    }
 
     $scope.openFile = function() {
         var deferred = $q.defer()
@@ -83,8 +95,10 @@ function($scope, $q, electron) {
             });
         });
         deferred.promise.then(function(){
-            $scope.convert_progress = 0.0;
+            $scope.convert_progress = 1.0;
+            $scope.dst_file = "";
         }, function(error){
+            $scope.dst_file = "";
             console.error(error);
         }, function(progress){
             $scope.convert_progress = progress;
