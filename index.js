@@ -20,13 +20,14 @@ function($scope, $q, electron) {
     $scope.angle_end   = 360;
     $scope.radius_in   = 0.0;
     $scope.radius_out  = 1.0
-    $scope.n_split     = 2;
+    $scope.n_split     = 1;
     $scope.resolutions = [
         {name:'VGA          640x480 ', width:640, height:480 },
         {name:'SVGA         800x600 ', width:800, height:600 },
         {name:'HD+         1600x900 ', width:1600, height:900 },
         {name:'HD (720p)   1280x720 ', width:1280, height:720 },
         {name:'FHD (1080p) 1920x1080', width:1920, height:1080 },
+        {name:'パノラマ     1200x400', width:1200, height:400 },
     ];
     $scope.resolution = $scope.resolutions[0];
 
