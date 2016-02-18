@@ -5,10 +5,11 @@
 #include <functional>
 
 int convert(std::string src_file, std::string dst_file,
-            int dst_width, int dst_height,
-            int start_time, int end_time,
-            int n_split,
-            double start_angle, double end_angle,
-            std::function<void(float)> callback);
+             int dst_width, int dst_height,
+             int start_time, int end_time,
+             double angle_start, double angle_end,
+             double radius_in, double radius_out,
+             int n_split,
+             std::function<void(float)> callback);
 
 #endif // CONVERTER_H

@@ -16,10 +16,11 @@ function($scope, $q, electron) {
     $scope.end_time    = 1000;
     $scope.dst_width   = 1280;
     $scope.dst_height  = 720;
+    $scope.angle_start = 0;
+    $scope.angle_end   = 360;
+    $scope.radius_in   = 0.5;
+    $scope.radius_out  = 1.0
     $scope.n_split     = 2;
-    $scope.start_angle = 0;
-    $scope.end_angle   = 360;
-
 
     $scope.convert_progress = 0.0;
 
@@ -54,9 +55,11 @@ function($scope, $q, electron) {
                 end_time:    $scope.end_time,
                 dst_width:   $scope.dst_width,
                 dst_height:  $scope.dst_height,
+                radius_in:   $scope.radius_in,
+                radius_out:  $scope.radius_out,
+                angle_start: $scope.angle_start * 2.0 * Math.PI / 360.0,
+                angle_end:   $scope.angle_end * 2.0 * Math.PI / 360.0,
                 n_split:     $scope.n_split,
-                start_angle: $scope.start_angle * 2.0 * Math.PI / 360.0,
-                end_angle:   $scope.end_angle * 2.0 * Math.PI / 360.0,
             }, function(err, status, progress){
                 if (err) {
                     deferred.reject(err);

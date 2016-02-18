@@ -21,9 +21,11 @@ struct Work {
   int end_time;
   int dst_width;
   int dst_height;
+  double angle_start;
+  double angle_end;
+  double radius_in;
+  double radius_out;
   int n_split;
-  double start_angle;
-  double end_angle;
 
   std::string error;
   std::string status;
@@ -66,9 +68,11 @@ void convert_async(uv_work_t *req) {
             work->dst_height,
             work->start_time,
             work->end_time,
+            work->angle_start,
+            work->angle_end,
+            work->radius_in,
+            work->radius_out,
             work->n_split,
-            work->start_angle,
-            work->end_angle,
             progress_callback
         );
 }
@@ -98,9 +102,11 @@ void convert_method(const v8::FunctionCallbackInfo<v8::Value>& args) {
     int end_time         = data->Get(String::NewFromUtf8(isolate,"end_time"))->NumberValue();
     int dst_width        = data->Get(String::NewFromUtf8(isolate,"dst_width"))->NumberValue();
     int dst_height       = data->Get(String::NewFromUtf8(isolate,"dst_height"))->NumberValue();
+    double angle_start   = data->Get(String::NewFromUtf8(isolate,"angle_start"))->NumberValue();
+    double angle_end     = data->Get(String::NewFromUtf8(isolate,"angle_end"))->NumberValue();
+    double radius_in     = data->Get(String::NewFromUtf8(isolate,"radius_in"))->NumberValue();
+    double radius_out    = data->Get(String::NewFromUtf8(isolate,"radius_out"))->NumberValue();
     int n_split          = data->Get(String::NewFromUtf8(isolate,"n_split"))->NumberValue();
-    double start_angle   = data->Get(String::NewFromUtf8(isolate,"start_angle"))->NumberValue();
-    double end_angle     = data->Get(String::NewFromUtf8(isolate,"end_angle"))->NumberValue();
     Local<Function> callback = Local<Function>::Cast(args[1]);
 
     Work* work = new Work();
@@ -110,9 +116,11 @@ void convert_method(const v8::FunctionCallbackInfo<v8::Value>& args) {
     work->end_time    = end_time;
     work->dst_width   = dst_width;
     work->dst_height  = dst_height;
+    work->angle_start = angle_start;
+    work->angle_end   = angle_end;
+    work->radius_in   = radius_in;
+    work->radius_out  = radius_out;
     work->n_split     = n_split;
-    work->start_angle = start_angle;
-    work->end_angle   = end_angle;
     work->callback.Reset(isolate, callback);
     work->request.data = work;
     work->progress_async.data = work;
