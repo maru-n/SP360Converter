@@ -21,6 +21,14 @@ function($scope, $q, electron) {
     $scope.radius_in   = 0.0;
     $scope.radius_out  = 1.0
     $scope.n_split     = 2;
+    $scope.resolutions = [
+        {name:'VGA          640x480 ', width:640, height:480 },
+        {name:'SVGA         800x600 ', width:800, height:600 },
+        {name:'HD+         1600x900 ', width:1600, height:900 },
+        {name:'HD (720p)   1280x720 ', width:1280, height:720 },
+        {name:'FHD (1080p) 1920x1080', width:1920, height:1080 },
+    ];
+    $scope.resolution = $scope.resolutions[0];
 
     $scope.convert_progress = 0.0;
 
@@ -53,8 +61,8 @@ function($scope, $q, electron) {
                 dst_file:    $scope.dst_file,
                 start_time:  $scope.start_time,
                 end_time:    $scope.end_time,
-                dst_width:   $scope.dst_width,
-                dst_height:  $scope.dst_height,
+                dst_width:   $scope.resolution.width,
+                dst_height:  $scope.resolution.height,
                 radius_in:   $scope.radius_in,
                 radius_out:  $scope.radius_out,
                 angle_start: $scope.angle_start * 2.0 * Math.PI / 360.0,
