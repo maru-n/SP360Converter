@@ -11,6 +11,7 @@
   "license": "",
   "repository": "",
   "dependencies": {
+    "diskdb": "^0.1.14",
     "electron-prebuilt": "^0.36.7"
   }
 }

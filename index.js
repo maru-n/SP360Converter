@@ -49,7 +49,6 @@ function($scope, $q, electron) {
                 start_theta: 0.0 * Math.PI,
                 end_theta:   2.0 * Math.PI
             }, function(err, status, progress){
-                console.log(err, status, progress);
                 if (err) {
                     deferred.reject(err);
                 } else if (status == "progress") {
@@ -68,6 +67,5 @@ function($scope, $q, electron) {
         }, function(progress){
             $scope.convert_progress = progress;
         });
-
     }
 }]);
