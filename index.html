@@ -1,17 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="SP360Converter">
+
 <head>
     <meta charset="UTF-8">
     <title>SP360Converter</title>
-    <script src="index.js" charset="utf-8"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/ng-electron/ng-electron.js"></script>
+    <script src="index.js"></script>
 </head>
 
-<body>
+<body ng-controller="MainController">
     <div>
-        <button type="button" class="btn btn-primary-outline" onclick="openFile()">開く</button>
+        <button type="button" class="btn btn-primary-outline" ng-click="openFile()">開く</button>
+        <span>{{src_file}}</span>
     </div>
     <div>
-        <button type="button" class="btn btn-primary-outline" onclick="convert()">変換</button>
+        <button type="button" class="btn btn-primary-outline" ng-click="convert()">変換</button>
+        <span>{{dst_file}}</span>
+    </div>
+    <div>
+        <span>{{convert_progress}}</span>
     </div>
 </body>
 
