@@ -3,7 +3,7 @@
 var remote = require('remote');
 var converter = remote.require('./build/Release/converter');
 
-var SP360Converter = angular.module('SP360Converter', ['ngElectron', 'ui.bootstrap']);
+var SP360Converter = angular.module('SP360Converter', ['ngElectron']);
 
 SP360Converter.controller('MainController', ['$scope', '$q', 'electron',
 function($scope, $q, electron) {
@@ -33,14 +33,6 @@ function($scope, $q, electron) {
     $scope.resolution = $scope.resolutions[0];
 
     $scope.convert_progress = 0.0;
-
-    $scope.getConvertProgresPercentage = function() {
-        return $scope.convert_progress * 100;
-    };
-
-    $scope.getConvertProgresPercentageByInt = function() {
-        return Math.ceil($scope.getConvertProgresPercentage());
-    }
 
     $scope.isConverting = function() {
         return (0.0 < $scope.convert_progress) && ($scope.convert_progress<1.0);

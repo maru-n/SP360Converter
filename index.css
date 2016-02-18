@@ -1,0 +1,14 @@
+progress[value] {
+    width: 90%;
+    margin: 5px 10px 0 10px;
+}
+
+#main-content {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    grid-template-rows: auto;
+}
+
+#main-content .component {
+    padding: 20px;
+}
