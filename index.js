@@ -18,7 +18,7 @@ function($scope, $q, electron) {
     $scope.dst_height  = 720;
     $scope.angle_start = 0;
     $scope.angle_end   = 360;
-    $scope.radius_in   = 0.5;
+    $scope.radius_in   = 0.0;
     $scope.radius_out  = 1.0
     $scope.n_split     = 2;
 
