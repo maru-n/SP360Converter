@@ -27,13 +27,15 @@ progress[value] {
     grid-column-end: 3;
 }
 
+#preview-component .canvas-wrapper:first-child {
+    margin-right: 50px;
+}
 
 .canvas-wrapper {
     float: left;
     border: solid 1px #999999;
     border-radius: 2px;
     padding: 2px;
-    margin-right: 25px;
 }
 
 canvas {
