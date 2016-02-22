@@ -7,7 +7,11 @@
 
 using namespace cv;
 
-void convert_frame(Mat src_frame, Mat dst_frame, double angle_start, double angle_end, double radius_in, double radius_out, int n_split)
+
+void convertFrame(cv::Mat src_frame, cv::Mat dst_frame,
+                  double angle_start, double angle_end,
+                  double radius_in, double radius_out,
+                  int n_split)
 {
     double R = src_frame.cols / 2.;
     int w = double(dst_frame.cols);
@@ -32,7 +36,58 @@ void convert_frame(Mat src_frame, Mat dst_frame, double angle_start, double angl
 }
 
 
-int convert(std::string src_file, std::string dst_file,
+void print_info(const cv::Mat& mat)
+{
+    using namespace std;
+
+    cout << "type: " << (
+        mat.type() == CV_8UC3 ? "CV_8UC3" :
+        mat.type() == CV_16SC1 ? "CV_16SC1" :
+        mat.type() == CV_64FC2 ? "CV_64FC2" :
+        "other"
+        ) << endl;
+    cout << "depth: " << (
+        mat.depth() == CV_8U ? "CV_8U" :
+        mat.depth() == CV_16S ? "CV_16S" :
+        mat.depth() == CV_64F ? "CV_64F" :
+        "other"
+        ) << endl;
+    cout << "channels: " << mat.channels() << endl;
+    cout << "continuous: " <<
+        (mat.isContinuous() ? "true" : "false")<< endl;
+}
+
+#include <time.h>
+int makeThumbnail(std::string src_file, unsigned char* dst_array,
+                  int dst_width, int dst_height,
+                  int time)
+{
+    using namespace cv;
+
+    VideoCapture cap(src_file.c_str());
+    cap.set(CAP_PROP_POS_MSEC, time);
+    Mat src_img;
+    cap >> src_img;
+    if( src_img.empty() ) {
+        return 1;
+    }
+    Mat resized_img(Size(dst_height, dst_width), src_img.type());
+    resize(src_img, resized_img, resized_img.size());
+
+    for(int j=0; j<dst_height; j++) {
+        for(int i=0; i<dst_width; i++) {
+            int idx = j*dst_width + i;
+            dst_array[idx*4+0] = (int)resized_img.data[idx*3+2];
+            dst_array[idx*4+1] = (int)resized_img.data[idx*3+1];
+            dst_array[idx*4+2] = (int)resized_img.data[idx*3+0];
+            dst_array[idx*4+3] = 255;
+        }
+    }
+    return 0;
+}
+
+
+int convertMovie(std::string src_file, std::string dst_file,
              int dst_width, int dst_height,
              int start_time, int end_time,
              double angle_start, double angle_end,
@@ -58,7 +113,7 @@ int convert(std::string src_file, std::string dst_file,
         if( frame.empty() )
             break;
         Mat new_frame = Mat(dst_height, dst_width, frame.type());
-        convert_frame(frame, new_frame, angle_start, angle_end, radius_in, radius_out, n_split);
+        convertFrame(frame, new_frame, angle_start, angle_end, radius_in, radius_out, n_split);
         writer << new_frame;
         float progress = (current_pos - start_time) / (end_time - start_time);
         callback(progress);

@@ -8,7 +8,6 @@
         <link href="index.css" rel="stylesheet">
         <script src="bower_components/angular/angular.js"></script>
         <script src="bower_components/ng-electron/ng-electron.js"></script>
-        <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
         <script src="index.js"></script>
     </head>
 
@@ -17,7 +16,7 @@
             <div class="window-content">
                 <div class="pane-group">
                     <div class="pane" id="main-content">
-                        <div class="component">
+                        <div id="setting-area" class="component">
                             <div>
                                 <button type="button" class="btn btn-default" ng-click="openFile()">
                                     開く
@@ -62,7 +61,10 @@
                             </div>
                         </div>
 
-                        <div class="component">preview area</div>
+                        <div class="component">
+                            <canvas id="original-preview-canvas"></canvas>
+                        </div>
+                        <button ng-click="updatePreview()">test</button>
                     </div>
                 </div>
             </div>

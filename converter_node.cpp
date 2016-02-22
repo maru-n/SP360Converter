@@ -33,7 +33,7 @@ struct Work {
 };
 
 
-void call_node_callback(Work* work) {
+void callNodeCallback(Work* work) {
     Isolate * isolate = Isolate::GetCurrent();
     v8::HandleScope handleScope(isolate); // Required for Node 4.x
     Local<Primitive> error;
@@ -49,51 +49,50 @@ void call_node_callback(Work* work) {
 }
 
 
-void convert_progress(uv_async_t *handle) {
+void convertProgress(uv_async_t *handle) {
     Work *work = static_cast<Work *>(handle->data);
-    call_node_callback(work);
+    callNodeCallback(work);
 }
 
 
-void convert_async(uv_work_t *req) {
+void convertAsync(uv_work_t *req) {
     Work *work = static_cast<Work *>(req->data);
     work->status = "progress";
     std::function<void(float)> progress_callback = [&work](float progress){
         work->progress = progress;
         uv_async_send(&work->progress_async);
     };
-    convert(work->src_file,
-            work->dst_file,
-            work->dst_width,
-            work->dst_height,
-            work->start_time,
-            work->end_time,
-            work->angle_start,
-            work->angle_end,
-            work->radius_in,
-            work->radius_out,
-            work->n_split,
-            progress_callback
-        );
+    convertMovie(work->src_file,
+                 work->dst_file,
+                 work->dst_width,
+                 work->dst_height,
+                 work->start_time,
+                 work->end_time,
+                 work->angle_start,
+                 work->angle_end,
+                 work->radius_in,
+                 work->radius_out,
+                 work->n_split,
+                 progress_callback);
 }
 
 
-void convert_after(uv_work_t *req, int status)
+void convertAfter(uv_work_t *req, int status)
 {
     Work *work = static_cast<Work *>(req->data);
     work->status = "successed";
     work->progress = 1.0;
-    call_node_callback(work);
+    callNodeCallback(work);
     work->callback.Reset();
     uv_close((uv_handle_t*) &work->progress_async, NULL);
     delete work;
 }
 
 
-void convert_method(const v8::FunctionCallbackInfo<v8::Value>& args) {
+void convertMovieMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
     Isolate* isolate = args.GetIsolate();
-    Handle<Object> data = Handle<Object>::Cast(args[0]);
 
+    Handle<Object> data = Handle<Object>::Cast(args[0]);
     v8::String::Utf8Value src_file_utf(data->Get(String::NewFromUtf8(isolate,"src_file")));
     std::string src_file = std::string(*src_file_utf);
     v8::String::Utf8Value dst_file_utf(data->Get(String::NewFromUtf8(isolate,"dst_file")));
@@ -125,15 +124,49 @@ void convert_method(const v8::FunctionCallbackInfo<v8::Value>& args) {
     work->request.data = work;
     work->progress_async.data = work;
 
-    uv_async_init(uv_default_loop(), &work->progress_async, convert_progress);
-    uv_queue_work(uv_default_loop(), &work->request, convert_async, convert_after);
+    uv_async_init(uv_default_loop(), &work->progress_async, convertProgress);
+    uv_queue_work(uv_default_loop(), &work->request, convertAsync, convertAfter);
 
     args.GetReturnValue().Set(Undefined(isolate));
 }
 
 
+void makeThumbnailMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    Isolate* isolate = args.GetIsolate();
+
+    if (!args[0]->IsString() || !args[2]->IsNumber() || !args[3]->IsNumber()) {
+        isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "Wrong arguments")));
+        return;
+    }
+
+    //std::string src_file = args[0]->ToString();
+    std::string src_file("/Users/maruyama/Desktop/SP360Converter/sample/SK01_07.MP4");
+
+
+    //v8::String::Utf8Value param1(args[0]->ToString());
+    //std::string src_file = std::string(*param1);
+
+
+    //Local<Uint8ClampedArray> array = args[0].As<Uint8ClampedArray>();
+    Local<Uint8ClampedArray> array = args[1].As<Uint8ClampedArray>();
+    unsigned char* ptr = (unsigned char*)array->Buffer()->GetContents().Data();
+
+    int width = args[2]->NumberValue();
+    int height = args[3]->NumberValue();
+
+    int result = makeThumbnail(src_file, ptr, width, height, 0);
+
+    args.GetReturnValue().Set(Undefined(isolate));
+}
+
+
+void openMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+}
+
 void init(Local<Object> exports) {
-    NODE_SET_METHOD(exports, "convert", convert_method);
+    NODE_SET_METHOD(exports, "open", openMethod);
+    NODE_SET_METHOD(exports, "convert", convertMovieMethod);
+    NODE_SET_METHOD(exports, "makeThumbnail", makeThumbnailMethod);
 }
 
 NODE_MODULE(converter, init)

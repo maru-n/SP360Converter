@@ -1,7 +1,8 @@
 'use strict';
 
 var remote = require('remote');
-var converter = remote.require('./build/Release/converter');
+//var converter = remote.require('./build/Release/converter');
+var converter = require('./build/Release/converter');
 
 var SP360Converter = angular.module('SP360Converter', ['ngElectron']);
 
@@ -33,6 +34,20 @@ function($scope, $q, electron) {
     $scope.resolution = $scope.resolutions[0];
 
     $scope.convert_progress = 0.0;
+
+    var previewImageWidth = 1200;
+    var previewImageHeight = 1200;
+
+    var previewImageCanvas = document.getElementById('original-preview-canvas');
+    previewImageCanvas.width = previewImageWidth;
+    previewImageCanvas.height = previewImageHeight;
+    var previewImageContext = previewImageCanvas.getContext('2d');
+    var previewImageData = previewImageContext.createImageData(previewImageWidth, previewImageHeight);
+
+    $scope.updatePreview = function() {
+        converter.makeThumbnail("", previewImageData.data, previewImageWidth, previewImageHeight);
+        previewImageContext.putImageData(previewImageData, 0, 0);
+    }
 
     $scope.isConverting = function() {
         return (0.0 < $scope.convert_progress) && ($scope.convert_progress<1.0);
