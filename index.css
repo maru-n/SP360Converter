@@ -13,7 +13,13 @@ progress[value] {
     padding: 20px;
 }
 
+.canvas-wrapper {
+}
+
 #original-preview-canvas {
-    width: 300px;
-    height: 300px;
+    border: solid 1px #999999;
+    border-radius: 3px;
+    padding: 3px;
+    width: 250px;
+    height: 250px;
 }

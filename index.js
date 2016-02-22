@@ -29,23 +29,25 @@ function($scope, $q, electron) {
         {name:'HD+         1600x900 ', width:1600, height:900 },
         {name:'HD (720p)   1280x720 ', width:1280, height:720 },
         {name:'FHD (1080p) 1920x1080', width:1920, height:1080 },
-        {name:'パノラマ     1200x400', width:1200, height:400 },
+        {name:'パノラマ     1200x400 ', width:1200, height:400 },
     ];
     $scope.resolution = $scope.resolutions[0];
 
     $scope.convert_progress = 0.0;
 
-    var previewImageWidth = 1200;
-    var previewImageHeight = 1200;
 
     var previewImageCanvas = document.getElementById('original-preview-canvas');
+
+    var previewImageWidth = 600;
+    var previewImageHeight = 600;
+
     previewImageCanvas.width = previewImageWidth;
     previewImageCanvas.height = previewImageHeight;
     var previewImageContext = previewImageCanvas.getContext('2d');
     var previewImageData = previewImageContext.createImageData(previewImageWidth, previewImageHeight);
 
     $scope.updatePreview = function() {
-        converter.makeThumbnail("", previewImageData.data, previewImageWidth, previewImageHeight);
+        converter.makeThumbnail($scope.src_file, previewImageData.data, previewImageWidth, previewImageHeight);
         previewImageContext.putImageData(previewImageData, 0, 0);
     }
 
@@ -63,6 +65,7 @@ function($scope, $q, electron) {
         });
         deferred.promise.then(function(filenames){
             $scope.src_file = filenames[0];
+            $scope.updatePreview();
         });
     };
 

@@ -121,41 +121,7 @@ int convertMovie(std::string src_file, std::string dst_file,
     return 0;
 }
 
-
 /*
-int main(int argc, char const *argv[]) {
-    std::string src_file(argv[1]);
-    std::string dst_file(argv[2]);
-    // Original
-    // int ASPECT = 1.5;
-    // int SCALE = 1.0;
-    // int src_size = (int)cap.get(CAP_PROP_FRAME_WIDTH);
-    // double R = src_size / 2.;
-    // int dst_width = int(2.0*M_PI*R*SCALE/ASPECT);
-    // int dst_height = int(R * SCALE);
-
-    // HD (720p)
-    int dst_width = 1280;
-    int dst_height = 720;
-
-    // Full-HD (1080p)
-    // int dst_width = 1920;
-    // int dst_height = 1080;
-
-    int start_time = atoi(argv[3]);
-    int end_time = atoi(argv[4]);
-    int n_split = atoi(argv[5]);
-    double angle_start = atof(argv[6]) * M_PI;
-    double angle_end = atof(argv[7]) * M_PI;
-    convert(src_file, dst_file,
-            dst_width, dst_height,
-            start_time, end_time,
-            n_split,
-            angle_start,
-            angle_end,
-            [](float progress){
-        std::cout << progress << std::endl;
-    });
     return 0;
 }
 */

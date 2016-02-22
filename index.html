@@ -21,7 +21,6 @@
                                 <button type="button" class="btn btn-default" ng-click="openFile()">
                                     開く
                                 </button>
-                                <span>{{src_file}}</span>
                             </div>
                             <div>
                                 <label>開始 [msec]
@@ -62,9 +61,10 @@
                         </div>
 
                         <div class="component">
-                            <canvas id="original-preview-canvas"></canvas>
+                            <div class="canvas-wrapper">
+                                <canvas id="original-preview-canvas"></canvas>
+                            </div>
                         </div>
-                        <button ng-click="updatePreview()">test</button>
                     </div>
                 </div>
             </div>

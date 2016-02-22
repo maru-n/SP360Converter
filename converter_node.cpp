@@ -139,22 +139,16 @@ void makeThumbnailMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
         return;
     }
 
-    //std::string src_file = args[0]->ToString();
-    std::string src_file("/Users/maruyama/Desktop/SP360Converter/sample/SK01_07.MP4");
+    v8::String::Utf8Value param1(args[0]->ToString());
+    std::string src_file = std::string(*param1);
 
-
-    //v8::String::Utf8Value param1(args[0]->ToString());
-    //std::string src_file = std::string(*param1);
-
-
-    //Local<Uint8ClampedArray> array = args[0].As<Uint8ClampedArray>();
     Local<Uint8ClampedArray> array = args[1].As<Uint8ClampedArray>();
     unsigned char* ptr = (unsigned char*)array->Buffer()->GetContents().Data();
 
     int width = args[2]->NumberValue();
     int height = args[3]->NumberValue();
 
-    int result = makeThumbnail(src_file, ptr, width, height, 0);
+    makeThumbnail(src_file, ptr, width, height, 0);
 
     args.GetReturnValue().Set(Undefined(isolate));
 }
