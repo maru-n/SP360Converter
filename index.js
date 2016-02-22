@@ -11,40 +11,47 @@ function($scope, $q, electron) {
     var BrowserWindow = electron.browserWindow;
     var Dialog = electron.dialog;
 
-    $scope.src_file = "";
-    $scope.dst_file = "";
-    $scope.start_time  = 0;
-    $scope.end_time    = 1000;
-    $scope.dst_width   = 1280;
-    $scope.dst_height  = 720;
-    $scope.angle_start = 0;
-    $scope.angle_end   = 360;
-    $scope.radius_in   = 0.0;
-    $scope.radius_out  = 1.0
-    $scope.n_split_choice = [1, 2, 3];
-    $scope.n_split     = $scope.n_split_choice[0];
+    $scope.src_file     = "";
+    $scope.dst_file     = "";
+    $scope.start_time   = 0;
+    $scope.end_time     = 1000;
+    $scope.preview_time = 0;
+    $scope.dst_width    = 1280;
+    $scope.dst_height   = 720;
+    $scope.angle_start  = 0;
+    $scope.angle_end    = 360;
+    $scope.radius_in    = 0.0;
+    $scope.radius_out   = 1.0
+    $scope.n_split_choices = [1, 2, 3];
+    $scope.n_split     = $scope.n_split_choices[0];
     $scope.resolutions = [
-        {name:'VGA          640x480 ', width:640, height:480 },
-        {name:'SVGA         800x600 ', width:800, height:600 },
-        {name:'HD+         1600x900 ', width:1600, height:900 },
-        {name:'HD (720p)   1280x720 ', width:1280, height:720 },
-        {name:'FHD (1080p) 1920x1080', width:1920, height:1080 },
-        {name:'パノラマ     1200x400 ', width:1200, height:400 },
+        {name:'VGA          640x480 ', width:640, height:480, aspect:"4:3" },
+        {name:'SVGA         800x600 ', width:800, height:600, aspect:"4:3" },
+        {name:'HD+         1600x900 ', width:1600, height:900, aspect:"16:9" },
+        {name:'HD (720p)   1280x720 ', width:1280, height:720, aspect:"16:9" },
+        {name:'FHD (1080p) 1920x1080', width:1920, height:1080, aspect:"16:9" },
+        {name:'パノラマ     1200x400 ', width:1200, height:400, aspect:"3:1" },
     ];
     $scope.resolution = $scope.resolutions[0];
 
     $scope.convert_progress = 0.0;
 
 
-    var previewImageCanvas = document.getElementById('original-preview-canvas');
+    var originalPreviewWidth = 300;
+    var originalPreviewWheight = 300;
+    var originalPreviewCanvas = document.getElementById('original-preview-canvas');
+    originalPreviewCanvas.width = originalPreviewWidth;
+    originalPreviewCanvas.height = originalPreviewWheight;
+    var originalPreviewContext = originalPreviewCanvas.getContext('2d');
+    var originalPreviewData = originalPreviewContext.createImageData(originalPreviewWidth, originalPreviewWheight);
 
-    var previewImageWidth = 600;
-    var previewImageHeight = 600;
-
-    previewImageCanvas.width = previewImageWidth;
-    previewImageCanvas.height = previewImageHeight;
-    var previewImageContext = previewImageCanvas.getContext('2d');
-    var previewImageData = previewImageContext.createImageData(previewImageWidth, previewImageHeight);
+    var convertedPreviewWidth = 400;
+    var convertedPreviewHeight = 225;
+    var convertedPreviewCanvas = document.getElementById('converted-preview-canvas');
+    convertedPreviewCanvas.width = convertedPreviewWidth;
+    convertedPreviewCanvas.height = convertedPreviewHeight;
+    var convertedPreviewContext = convertedPreviewCanvas.getContext('2d');
+    var convertedPreviewData = convertedPreviewContext.createImageData(convertedPreviewWidth, convertedPreviewHeight);
 
     var updateConverter = function() {
         converter.setup({
@@ -52,6 +59,7 @@ function($scope, $q, electron) {
             dst_file:    $scope.dst_file,
             start_time:  $scope.start_time,
             end_time:    $scope.end_time,
+            preview_time:$scope.preview_time,
             dst_width:   $scope.resolution.width,
             dst_height:  $scope.resolution.height,
             radius_in:   $scope.radius_in,
@@ -63,8 +71,11 @@ function($scope, $q, electron) {
     }
 
     $scope.updatePreview = function() {
-        converter.makeImage(previewImageData.data, previewImageWidth, previewImageHeight);
-        previewImageContext.putImageData(previewImageData, 0, 0);
+        updateConverter();
+        converter.makePreviewImage(originalPreviewData.data, originalPreviewWidth, originalPreviewWheight);
+        originalPreviewContext.putImageData(originalPreviewData, 0, 0);
+        converter.makeConvertedPreviewImage(convertedPreviewData.data, convertedPreviewWidth, convertedPreviewHeight);
+        convertedPreviewContext.putImageData(convertedPreviewData, 0, 0);
     }
 
     $scope.isConverting = function() {
