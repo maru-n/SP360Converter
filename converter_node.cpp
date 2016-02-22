@@ -147,18 +147,28 @@ void setupMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
     Handle<Object> data = Handle<Object>::Cast(args[0]);
     v8::String::Utf8Value src_file_utf(data->Get(String::NewFromUtf8(isolate,"src_file")));
     v8::String::Utf8Value dst_file_utf(data->Get(String::NewFromUtf8(isolate,"dst_file")));
-    work->src_file     = std::string(*src_file_utf);
-    work->dst_file     = std::string(*dst_file_utf);
-    work->start_time   = data->Get(String::NewFromUtf8(isolate,"start_time"))->NumberValue();
-    work->end_time     = data->Get(String::NewFromUtf8(isolate,"end_time"))->NumberValue();
-    work->preview_time = data->Get(String::NewFromUtf8(isolate,"preview_time"))->NumberValue();
-    work->dst_width    = data->Get(String::NewFromUtf8(isolate,"dst_width"))->NumberValue();
-    work->dst_height   = data->Get(String::NewFromUtf8(isolate,"dst_height"))->NumberValue();
-    work->angle_start  = data->Get(String::NewFromUtf8(isolate,"angle_start"))->NumberValue();
-    work->angle_end    = data->Get(String::NewFromUtf8(isolate,"angle_end"))->NumberValue();
-    work->radius_in    = data->Get(String::NewFromUtf8(isolate,"radius_in"))->NumberValue();
-    work->radius_out   = data->Get(String::NewFromUtf8(isolate,"radius_out"))->NumberValue();
-    work->n_split      = data->Get(String::NewFromUtf8(isolate,"n_split"))->NumberValue();
+    work->src_file = std::string(*src_file_utf);
+    work->dst_file = std::string(*dst_file_utf);
+    if (data->Get(String::NewFromUtf8(isolate,"start_time"))->IsNumber())
+        work->start_time = data->Get(String::NewFromUtf8(isolate,"start_time"))->NumberValue();
+    if (data->Get(String::NewFromUtf8(isolate,"end_time"))->IsNumber())
+        work->end_time = data->Get(String::NewFromUtf8(isolate,"end_time"))->NumberValue();
+    if (data->Get(String::NewFromUtf8(isolate,"preview_time"))->IsNumber())
+        work->preview_time = data->Get(String::NewFromUtf8(isolate,"preview_time"))->NumberValue();
+    if (data->Get(String::NewFromUtf8(isolate,"dst_width"))->IsNumber())
+        work->dst_width = data->Get(String::NewFromUtf8(isolate,"dst_width"))->NumberValue();
+    if (data->Get(String::NewFromUtf8(isolate,"dst_height"))->IsNumber())
+        work->dst_height = data->Get(String::NewFromUtf8(isolate,"dst_height"))->NumberValue();
+    if (data->Get(String::NewFromUtf8(isolate,"angle_start"))->IsNumber())
+        work->angle_start = data->Get(String::NewFromUtf8(isolate,"angle_start"))->NumberValue();
+    if (data->Get(String::NewFromUtf8(isolate,"angle_end"))->IsNumber())
+        work->angle_end = data->Get(String::NewFromUtf8(isolate,"angle_end"))->NumberValue();
+    if (data->Get(String::NewFromUtf8(isolate,"radius_in"))->IsNumber())
+        work->radius_in = data->Get(String::NewFromUtf8(isolate,"radius_in"))->NumberValue();
+    if (data->Get(String::NewFromUtf8(isolate,"radius_out"))->IsNumber())
+        work->radius_out = data->Get(String::NewFromUtf8(isolate,"radius_out"))->NumberValue();
+    if (data->Get(String::NewFromUtf8(isolate,"n_split"))->IsNumber())
+        work->n_split  = data->Get(String::NewFromUtf8(isolate,"n_split"))->NumberValue();
     args.GetReturnValue().Set(Undefined(isolate));
 }
 
