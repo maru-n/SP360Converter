@@ -57,7 +57,7 @@ void print_info(const cv::Mat& mat)
         (mat.isContinuous() ? "true" : "false")<< endl;
 }
 
-#include <time.h>
+
 int makeThumbnail(std::string src_file, unsigned char* dst_array,
                   int dst_width, int dst_height,
                   int time)
