@@ -13,7 +13,7 @@ app.on('window-all-closed', function() {
 });
 app.on('ready', function() {
     mainWindow = new BrowserWindow({
-        'min-width': 800,
+        'min-width': 750,
         'min-height': 600
     });
     mainWindow.loadURL('file://' + __dirname + '/index.html');

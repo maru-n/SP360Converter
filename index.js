@@ -6,8 +6,8 @@ var converter = require('./build/Release/converter');
 
 var SP360Converter = angular.module('SP360Converter', ['ngElectron']);
 
-SP360Converter.controller('MainController', ['$scope', '$q', 'electron',
-function($scope, $q, electron) {
+SP360Converter.controller('MainController', ['$scope', '$q', '$timeout', 'electron',
+function($scope, $q, $timeout, electron) {
     var BrowserWindow = electron.browserWindow;
     var Dialog = electron.dialog;
 
@@ -22,7 +22,7 @@ function($scope, $q, electron) {
     $scope.angle_end    = 360;
     $scope.radius_in    = 0.0;
     $scope.radius_out   = 1.0
-    $scope.n_split_choices = [1, 2, 3];
+    $scope.n_split_choices = [1, 2];
     $scope.n_split     = $scope.n_split_choices[0];
     $scope.resolutions = [
         {name:'VGA          640x480 ', width:640, height:480, aspect:"4:3" },
@@ -37,8 +37,8 @@ function($scope, $q, electron) {
     $scope.convert_progress = 0.0;
 
 
-    var originalPreviewWidth = 300;
-    var originalPreviewWheight = 300;
+    var originalPreviewWidth = 200;
+    var originalPreviewWheight = 200;
     var originalPreviewCanvas = document.getElementById('original-preview-canvas');
     originalPreviewCanvas.width = originalPreviewWidth;
     originalPreviewCanvas.height = originalPreviewWheight;
@@ -71,11 +71,13 @@ function($scope, $q, electron) {
     }
 
     $scope.updatePreview = function() {
-        updateConverter();
-        converter.makePreviewImage(originalPreviewData.data, originalPreviewWidth, originalPreviewWheight);
-        originalPreviewContext.putImageData(originalPreviewData, 0, 0);
-        converter.makeConvertedPreviewImage(convertedPreviewData.data, convertedPreviewWidth, convertedPreviewHeight);
-        convertedPreviewContext.putImageData(convertedPreviewData, 0, 0);
+        $timeout(function(){
+            updateConverter();
+            converter.makePreviewImage(originalPreviewData.data, originalPreviewWidth, originalPreviewWheight);
+            originalPreviewContext.putImageData(originalPreviewData, 0, 0);
+            converter.makeConvertedPreviewImage(convertedPreviewData.data, convertedPreviewWidth, convertedPreviewHeight);
+            convertedPreviewContext.putImageData(convertedPreviewData, 0, 0);
+        });
     }
 
     $scope.isConverting = function() {
