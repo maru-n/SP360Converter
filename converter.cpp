@@ -8,14 +8,14 @@
 using namespace cv;
 
 
-void convertFrame(cv::Mat src_frame, cv::Mat dst_frame,
+void convertImage(cv::Mat src_img, cv::Mat dst_img,
                   double angle_start, double angle_end,
                   double radius_in, double radius_out,
                   int n_split)
 {
-    double R = src_frame.cols / 2.;
-    int w = double(dst_frame.cols);
-    int h = double(dst_frame.rows);
+    double R = src_img.cols / 2.;
+    int w = double(dst_img.cols);
+    int h = double(dst_img.rows);
     int pan_w = w * n_split;
     int pan_h = h / n_split;
 
@@ -30,7 +30,7 @@ void convertFrame(cv::Mat src_frame, cv::Mat dst_frame,
             th = angle_start + (angle_end - angle_start) * pan_i / pan_w;
             src_i = R + r * cos(th);
             src_j = R - r * sin(th);
-            dst_frame.at<Vec3b>(Point(i, j)) = src_frame.at<Vec3b>(Point(src_i,src_j));
+            dst_img.at<Vec3b>(Point(i, j)) = src_img.at<Vec3b>(Point(src_i,src_j));
         }
     }
 }
