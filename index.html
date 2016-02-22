@@ -15,8 +15,8 @@
         <div class="window">
             <div class="window-content">
                 <div class="pane-group">
-                    <div class="pane" id="main-content">
-                        <div id="setting-area" class="component">
+                    <div class="pane grid-wrapper">
+                        <div id="setting-component" class="grid-component">
                             <div>
                                 <button type="button" class="btn btn-default" ng-click="openFile()">
                                     開く
@@ -60,9 +60,12 @@
                             </div>
                         </div>
 
-                        <div class="component">
-                            <div class="canvas-wrapper">
+                        <div id="preview-component" class="grid-component">
+                            <div class="canvas-wrapper" id="original-preview">
                                 <canvas id="original-preview-canvas"></canvas>
+                            </div>
+                            <div class="canvas-wrapper" id="converted-preview">
+                                <canvas id="conveted-preview-canvas"></canvas>
                             </div>
                         </div>
                     </div>

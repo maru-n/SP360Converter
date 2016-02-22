@@ -120,8 +120,3 @@ int convertMovie(std::string src_file, std::string dst_file,
     }
     return 0;
 }
-
-/*
-    return 0;
-}
-*/
