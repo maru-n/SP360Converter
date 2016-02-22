@@ -113,7 +113,19 @@ void makePreviewImageMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
     unsigned char* dst_img_ptr = (unsigned char*)array->Buffer()->GetContents().Data();
     int width = args[1]->NumberValue();
     int height = args[2]->NumberValue();
-    makeImage(work->src_file, dst_img_ptr, width, height, work->preview_time);
+    bool border = args[3]->BooleanValue();
+    if (border) {
+        makeConvertedImage(work->src_file, dst_img_ptr,
+                           width, height,
+                           work->preview_time,
+                           work->angle_start,
+                           work->angle_end,
+                           work->radius_in,
+                           work->radius_out,
+                           work->n_split);
+    } else {
+        makeImage(work->src_file, dst_img_ptr, width, height, work->preview_time);
+    }
     args.GetReturnValue().Set(Undefined(isolate));
 }
 

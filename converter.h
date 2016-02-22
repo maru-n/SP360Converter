@@ -9,6 +9,13 @@ int makeImage(std::string src_file, unsigned char* dst_array,
               unsigned int dst_width, unsigned int dst_height,
               unsigned int time);
 
+int makeConvertBorderImage(std::string src_file, unsigned char* dst_array,
+                           unsigned int dst_width, unsigned int dst_height,
+                           unsigned int time,
+                           double angle_start, double angle_end,
+                           double radius_in, double radius_out,
+                           int n_split);
+
 
 int makeConvertedImage(std::string src_file, unsigned char* dst_array,
                        unsigned int dst_width, unsigned int dst_height,
