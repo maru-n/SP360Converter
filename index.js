@@ -63,7 +63,7 @@ function($scope, $q, electron) {
     }
 
     $scope.updatePreview = function() {
-        converter.makeThumbnail(previewImageData.data, previewImageWidth, previewImageHeight);
+        converter.makeImage(previewImageData.data, previewImageWidth, previewImageHeight);
         previewImageContext.putImageData(previewImageData, 0, 0);
     }
 

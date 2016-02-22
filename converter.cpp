@@ -58,9 +58,9 @@ void print_info(const cv::Mat& mat)
 }
 
 
-int makeThumbnail(std::string src_file, unsigned char* dst_array,
-                  int dst_width, int dst_height,
-                  int time)
+int makeImage(std::string src_file, unsigned char* dst_array,
+              int dst_width, int dst_height,
+              int time)
 {
     using namespace cv;
 
@@ -76,6 +76,32 @@ int makeThumbnail(std::string src_file, unsigned char* dst_array,
 
     Mat dst_img(dst_height, dst_width, CV_8UC4, dst_array);
     resize(tmp_img, dst_img, dst_img.size());
+
+    return 0;
+}
+
+
+int makeConvertedImage(std::string src_file, unsigned char* dst_array,
+                       int dst_width, int dst_height,
+                       int time,
+                       double angle_start, double angle_end,
+                       double radius_in, double radius_out,
+                       int n_split)
+{
+    using namespace cv;
+
+    VideoCapture cap(src_file.c_str());
+    cap.set(CAP_PROP_POS_MSEC, time);
+    Mat src_img;
+    cap >> src_img;
+    if( src_img.empty() ) {
+        return 1;
+    }
+    Mat tmp_img;
+    cvtColor(src_img, tmp_img, CV_BGR2RGBA );
+
+    Mat dst_img(dst_height, dst_width, CV_8UC4, dst_array);
+    convertImage(tmp_img, dst_img, angle_start, angle_end, radius_in, radius_out, n_split);
 
     return 0;
 }

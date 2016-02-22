@@ -102,7 +102,7 @@ void convertMovieMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
 }
 
 
-void makeThumbnailMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+void makeImageMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
     Isolate* isolate = args.GetIsolate();
     if (!args[1]->IsNumber() || !args[2]->IsNumber()) {
         isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "Wrong arguments")));
@@ -112,7 +112,21 @@ void makeThumbnailMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
     unsigned char* ptr = (unsigned char*)array->Buffer()->GetContents().Data();
     int width = args[1]->NumberValue();
     int height = args[2]->NumberValue();
-    makeThumbnail(work->src_file, ptr, width, height, 0);
+    makeImage(work->src_file, ptr, width, height, 0);
+    args.GetReturnValue().Set(Undefined(isolate));
+}
+
+void makeConvertedImageMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    Isolate* isolate = args.GetIsolate();
+    if (!args[1]->IsNumber() || !args[2]->IsNumber()) {
+        isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "Wrong arguments")));
+        return;
+    }
+    Local<Uint8ClampedArray> array = args[0].As<Uint8ClampedArray>();
+    unsigned char* ptr = (unsigned char*)array->Buffer()->GetContents().Data();
+    int width = args[1]->NumberValue();
+    int height = args[2]->NumberValue();
+    makeImage(work->src_file, ptr, width, height, 0);
     args.GetReturnValue().Set(Undefined(isolate));
 }
 
@@ -154,7 +168,8 @@ void init(Local<Object> exports) {
     work->progress_async.data = work;
     NODE_SET_METHOD(exports, "setup", setupMethod);
     NODE_SET_METHOD(exports, "convert", convertMovieMethod);
-    NODE_SET_METHOD(exports, "makeThumbnail", makeThumbnailMethod);
+    NODE_SET_METHOD(exports, "makeImage", makeImageMethod);
+    NODE_SET_METHOD(exports, "makeConvertedImage", makeConvertedImageMethod);
 }
 
 NODE_MODULE(converter, init)
