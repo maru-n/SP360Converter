@@ -6,21 +6,21 @@
 #include <opencv2/opencv.hpp>
 
 int makeImage(std::string src_file, unsigned char* dst_array,
-              int dst_width, int dst_height,
-              int time);
+              unsigned int dst_width, unsigned int dst_height,
+              unsigned int time);
+
 
 int makeConvertedImage(std::string src_file, unsigned char* dst_array,
-                       int dst_width, int dst_height,
-                       int time,
+                       unsigned int dst_width, unsigned int dst_height,
+                       unsigned int time,
                        double angle_start, double angle_end,
                        double radius_in, double radius_out,
                        int n_split);
 
 
-
 int convertMovie(std::string src_file, std::string dst_file,
-                 int dst_width, int dst_height,
-                 int start_time, int end_time,
+                 unsigned int dst_width, unsigned int dst_height,
+                 unsigned int start_time, unsigned int end_time,
                  double angle_start, double angle_end,
                  double radius_in, double radius_out,
                  int n_split,

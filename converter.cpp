@@ -59,8 +59,8 @@ void print_info(const cv::Mat& mat)
 
 
 int makeImage(std::string src_file, unsigned char* dst_array,
-              int dst_width, int dst_height,
-              int time)
+              unsigned int dst_width, unsigned int dst_height,
+              unsigned int time)
 {
     using namespace cv;
 
@@ -82,8 +82,8 @@ int makeImage(std::string src_file, unsigned char* dst_array,
 
 
 int makeConvertedImage(std::string src_file, unsigned char* dst_array,
-                       int dst_width, int dst_height,
-                       int time,
+                       unsigned int dst_width, unsigned int dst_height,
+                       unsigned int time,
                        double angle_start, double angle_end,
                        double radius_in, double radius_out,
                        int n_split)
@@ -97,23 +97,23 @@ int makeConvertedImage(std::string src_file, unsigned char* dst_array,
     if( src_img.empty() ) {
         return 1;
     }
-    Mat tmp_img;
-    cvtColor(src_img, tmp_img, CV_BGR2RGBA );
+    Mat tmp_img(dst_height, dst_width, src_img.type());
+    convertImage(src_img, tmp_img, angle_start, angle_end, radius_in, radius_out, n_split);
 
     Mat dst_img(dst_height, dst_width, CV_8UC4, dst_array);
-    convertImage(tmp_img, dst_img, angle_start, angle_end, radius_in, radius_out, n_split);
+    cvtColor(tmp_img, dst_img, CV_BGR2RGBA);
 
     return 0;
 }
 
 
 int convertMovie(std::string src_file, std::string dst_file,
-             int dst_width, int dst_height,
-             int start_time, int end_time,
-             double angle_start, double angle_end,
-             double radius_in, double radius_out,
-             int n_split,
-             std::function<void(float)> callback)
+                 unsigned int dst_width, unsigned int dst_height,
+                 unsigned int start_time, unsigned int end_time,
+                 double angle_start, double angle_end,
+                 double radius_in, double radius_out,
+                 int n_split,
+                 std::function<void(float)> callback)
 {
     using namespace cv;
     VideoCapture cap(src_file.c_str());
