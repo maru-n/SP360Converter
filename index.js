@@ -46,8 +46,24 @@ function($scope, $q, electron) {
     var previewImageContext = previewImageCanvas.getContext('2d');
     var previewImageData = previewImageContext.createImageData(previewImageWidth, previewImageHeight);
 
+    var updateConverter = function() {
+        converter.setup({
+            src_file:    $scope.src_file,
+            dst_file:    $scope.dst_file,
+            start_time:  $scope.start_time,
+            end_time:    $scope.end_time,
+            dst_width:   $scope.resolution.width,
+            dst_height:  $scope.resolution.height,
+            radius_in:   $scope.radius_in,
+            radius_out:  $scope.radius_out,
+            angle_start: $scope.angle_start * 2.0 * Math.PI / 360.0,
+            angle_end:   $scope.angle_end * 2.0 * Math.PI / 360.0,
+            n_split:     $scope.n_split,
+        });
+    }
+
     $scope.updatePreview = function() {
-        converter.makeThumbnail($scope.src_file, previewImageData.data, previewImageWidth, previewImageHeight);
+        converter.makeThumbnail(previewImageData.data, previewImageWidth, previewImageHeight);
         previewImageContext.putImageData(previewImageData, 0, 0);
     }
 
@@ -65,6 +81,7 @@ function($scope, $q, electron) {
         });
         deferred.promise.then(function(filenames){
             $scope.src_file = filenames[0];
+            updateConverter();
             $scope.updatePreview();
         });
     };
@@ -80,19 +97,8 @@ function($scope, $q, electron) {
             if (!$scope.src_file || !$scope.dst_file) {
                 return;
             }
-            converter.convert({
-                src_file:    $scope.src_file,
-                dst_file:    $scope.dst_file,
-                start_time:  $scope.start_time,
-                end_time:    $scope.end_time,
-                dst_width:   $scope.resolution.width,
-                dst_height:  $scope.resolution.height,
-                radius_in:   $scope.radius_in,
-                radius_out:  $scope.radius_out,
-                angle_start: $scope.angle_start * 2.0 * Math.PI / 360.0,
-                angle_end:   $scope.angle_end * 2.0 * Math.PI / 360.0,
-                n_split:     $scope.n_split,
-            }, function(err, status, progress){
+            updateConverter();
+            converter.convert(function(err, status, progress){
                 if (err) {
                     deferred.reject(err);
                 } else if (status == "progress") {

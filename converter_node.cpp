@@ -32,6 +32,7 @@ struct Work {
   double progress;
 };
 
+Work* work;
 
 void callNodeCallback(Work* work) {
     Isolate * isolate = Isolate::GetCurrent();
@@ -85,11 +86,38 @@ void convertAfter(uv_work_t *req, int status)
     callNodeCallback(work);
     work->callback.Reset();
     uv_close((uv_handle_t*) &work->progress_async, NULL);
-    delete work;
+    //delete work;
 }
 
 
 void convertMovieMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    Isolate* isolate = args.GetIsolate();
+    Local<Function> callback = Local<Function>::Cast(args[0]);
+    work->callback.Reset(isolate, callback);
+
+    uv_async_init(uv_default_loop(), &work->progress_async, convertProgress);
+    uv_queue_work(uv_default_loop(), &work->request, convertAsync, convertAfter);
+
+    args.GetReturnValue().Set(Undefined(isolate));
+}
+
+
+void makeThumbnailMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    Isolate* isolate = args.GetIsolate();
+    if (!args[1]->IsNumber() || !args[2]->IsNumber()) {
+        isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "Wrong arguments")));
+        return;
+    }
+    Local<Uint8ClampedArray> array = args[0].As<Uint8ClampedArray>();
+    unsigned char* ptr = (unsigned char*)array->Buffer()->GetContents().Data();
+    int width = args[1]->NumberValue();
+    int height = args[2]->NumberValue();
+    makeThumbnail(work->src_file, ptr, width, height, 0);
+    args.GetReturnValue().Set(Undefined(isolate));
+}
+
+
+void setupMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
     Isolate* isolate = args.GetIsolate();
 
     Handle<Object> data = Handle<Object>::Cast(args[0]);
@@ -106,9 +134,6 @@ void convertMovieMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
     double radius_in     = data->Get(String::NewFromUtf8(isolate,"radius_in"))->NumberValue();
     double radius_out    = data->Get(String::NewFromUtf8(isolate,"radius_out"))->NumberValue();
     int n_split          = data->Get(String::NewFromUtf8(isolate,"n_split"))->NumberValue();
-    Local<Function> callback = Local<Function>::Cast(args[1]);
-
-    Work* work = new Work();
     work->src_file    = src_file;
     work->dst_file    = dst_file;
     work->start_time  = start_time;
@@ -120,45 +145,14 @@ void convertMovieMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
     work->radius_in   = radius_in;
     work->radius_out  = radius_out;
     work->n_split     = n_split;
-    work->callback.Reset(isolate, callback);
-    work->request.data = work;
-    work->progress_async.data = work;
-
-    uv_async_init(uv_default_loop(), &work->progress_async, convertProgress);
-    uv_queue_work(uv_default_loop(), &work->request, convertAsync, convertAfter);
-
-    args.GetReturnValue().Set(Undefined(isolate));
 }
 
-
-void makeThumbnailMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
-    Isolate* isolate = args.GetIsolate();
-
-    if (!args[0]->IsString() || !args[2]->IsNumber() || !args[3]->IsNumber()) {
-        isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "Wrong arguments")));
-        return;
-    }
-
-    v8::String::Utf8Value param1(args[0]->ToString());
-    std::string src_file = std::string(*param1);
-
-    Local<Uint8ClampedArray> array = args[1].As<Uint8ClampedArray>();
-    unsigned char* ptr = (unsigned char*)array->Buffer()->GetContents().Data();
-
-    int width = args[2]->NumberValue();
-    int height = args[3]->NumberValue();
-
-    makeThumbnail(src_file, ptr, width, height, 0);
-
-    args.GetReturnValue().Set(Undefined(isolate));
-}
-
-
-void openMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
-}
 
 void init(Local<Object> exports) {
-    NODE_SET_METHOD(exports, "open", openMethod);
+    work = new Work();
+    work->request.data = work;
+    work->progress_async.data = work;
+    NODE_SET_METHOD(exports, "setup", setupMethod);
     NODE_SET_METHOD(exports, "convert", convertMovieMethod);
     NODE_SET_METHOD(exports, "makeThumbnail", makeThumbnailMethod);
 }
