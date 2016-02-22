@@ -71,18 +71,12 @@ int makeThumbnail(std::string src_file, unsigned char* dst_array,
     if( src_img.empty() ) {
         return 1;
     }
-    Mat resized_img(Size(dst_height, dst_width), src_img.type());
-    resize(src_img, resized_img, resized_img.size());
+    Mat tmp_img;
+    cvtColor(src_img, tmp_img, CV_BGR2RGBA );
 
-    for(int j=0; j<dst_height; j++) {
-        for(int i=0; i<dst_width; i++) {
-            int idx = j*dst_width + i;
-            dst_array[idx*4+0] = (int)resized_img.data[idx*3+2];
-            dst_array[idx*4+1] = (int)resized_img.data[idx*3+1];
-            dst_array[idx*4+2] = (int)resized_img.data[idx*3+0];
-            dst_array[idx*4+3] = 255;
-        }
-    }
+    Mat dst_img(dst_height, dst_width, CV_8UC4, dst_array);
+    resize(tmp_img, dst_img, dst_img.size());
+
     return 0;
 }
 
@@ -113,7 +107,7 @@ int convertMovie(std::string src_file, std::string dst_file,
         if( frame.empty() )
             break;
         Mat new_frame = Mat(dst_height, dst_width, frame.type());
-        convertFrame(frame, new_frame, angle_start, angle_end, radius_in, radius_out, n_split);
+        convertImage(frame, new_frame, angle_start, angle_end, radius_in, radius_out, n_split);
         writer << new_frame;
         float progress = (current_pos - start_time) / (end_time - start_time);
         callback(progress);
