@@ -82,51 +82,33 @@ int makeConvertBorderImage(std::string src_file, unsigned char* dst_array,
     makeImage(src_file, dst_array, dst_width, dst_height, time);
     Mat dst_img(dst_height, dst_width, CV_8UC4, dst_array);
     Mat bd_img(n_points_h, n_points_w, CV_8U);
-
-    for (int n = 0; n < bd_img.size[1]*2 + bd_img.size[0]*2 - 4; n++) {
-        int i, j;
-        if (n < bd_img.size[1]) {
-            i = n;
-            j = 0;
-        } else if (n < bd_img.size[1] + bd_img.size[0] - 1) {
-            i = bd_img.size[1] - 1;
-            j = n - bd_img.size[1] + 1;
-        } else if (n < bd_img.size[1]*2 + bd_img.size[0] - 2) {
-            i = n - bd_img.size[0] - bd_img.size[1] + 2;
-            j = bd_img.size[0] - 1;
-        } else {
-            i = 0;
-            j = n - bd_img.size[0] - bd_img.size[1]*2 + 3;
+    for (int s = 0; s < n_split; s++) {
+        for (int n = 0; n < bd_img.size[1]*2 + bd_img.size[0]*2 - 4; n++) {
+            int i, j;
+            if (n < bd_img.size[1]) {
+                i = n;
+                j = 0;
+            } else if (n < bd_img.size[1] + bd_img.size[0] - 1) {
+                i = bd_img.size[1] - 1;
+                j = n - bd_img.size[1] + 1;
+            } else if (n < bd_img.size[1]*2 + bd_img.size[0] - 2) {
+                i = n - bd_img.size[0] - bd_img.size[1] + 2;
+                j = bd_img.size[0] - 1;
+            } else {
+                i = 0;
+                j = n - bd_img.size[0] - bd_img.size[1]*2 + 3;
+            }
+            double split_angle_start = angle_start + (angle_end - angle_start) * s / n_split;
+            double split_angle_end = split_angle_start + (angle_end - angle_start) / n_split;
+            Point point = calcOriginalPoint(Point(i, j), dst_img.size, bd_img.size,
+                                            split_angle_start, split_angle_end,
+                                            radius_in, radius_out,
+                                            1);
+            int idx = point.x + point.y*dst_img.size[1];
+            dst_img.data[idx*4+0] = 255;
+            dst_img.data[idx*4+1] = 0;
+            dst_img.data[idx*4+2] = 0;
         }
-        Point point = calcOriginalPoint(Point(i, j), dst_img.size, bd_img.size,
-                                        angle_start, angle_end,
-                                        radius_in, radius_out,
-                                        n_split);
-        int idx = point.x + point.y*dst_img.size[1];
-        dst_img.data[idx*4+0] = 255;
-        dst_img.data[idx*4+1] = 0;
-        dst_img.data[idx*4+2] = 0;
-    }
-
-    for (int i = 0; i < bd_img.size[1] * (n_split-1); i++) {
-        int j = (1 + i / bd_img.size[1]) * bd_img.size[0] / n_split;
-        Point point = calcOriginalPoint(Point(i, j), dst_img.size, bd_img.size,
-                                        angle_start, angle_end,
-                                        radius_in, radius_out,
-                                        n_split);
-        int idx = point.x + point.y*dst_img.size[1];
-        dst_img.data[idx*4+0] = 255;
-        dst_img.data[idx*4+1] = 0;
-        dst_img.data[idx*4+2] = 0;
-
-        point = calcOriginalPoint(Point(i, j-1), dst_img.size, bd_img.size,
-                                        angle_start, angle_end,
-                                        radius_in, radius_out,
-                                        n_split);
-        idx = point.x + point.y*dst_img.size[1];
-        dst_img.data[idx*4+0] = 255;
-        dst_img.data[idx*4+1] = 0;
-        dst_img.data[idx*4+2] = 0;
     }
     return 0;
 }
