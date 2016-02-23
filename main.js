@@ -21,7 +21,6 @@ app.on('ready', function() {
         'min-height': 600
     });
     mainWindow.loadURL('file://' + __dirname + '/index.html');
-    mainWindow.webContents.openDevTools();
     mainWindow.on('closed', function() {
         mainWindow = null;
     });

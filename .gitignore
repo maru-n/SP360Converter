@@ -33,3 +33,4 @@ build/gyp-mac-tool
 build/Makefile
 bower_components
 converter.target.mk
+dist
