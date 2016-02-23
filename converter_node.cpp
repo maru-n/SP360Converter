@@ -115,14 +115,15 @@ void makePreviewImageMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
     int height = args[2]->NumberValue();
     bool border = args[3]->BooleanValue();
     if (border) {
-        makeConvertedImage(work->src_file, dst_img_ptr,
-                           width, height,
-                           work->preview_time,
-                           work->angle_start,
-                           work->angle_end,
-                           work->radius_in,
-                           work->radius_out,
-                           work->n_split);
+        makeConvertBorderImage(work->src_file, dst_img_ptr,
+                               width, height,
+                               work->preview_time,
+                               work->angle_start,
+                               work->angle_end,
+                               work->radius_in,
+                               work->radius_out,
+                               work->n_split,
+                               1024, 256);
     } else {
         makeImage(work->src_file, dst_img_ptr, width, height, work->preview_time);
     }
