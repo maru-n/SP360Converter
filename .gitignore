@@ -34,3 +34,4 @@ build/Makefile
 bower_components
 converter.target.mk
 dist
+cpp/build
