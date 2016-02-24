@@ -21,9 +21,9 @@
     },
     "build": {
         "osx": {
-            "icon": "assets/icon.icns",
+            "icon": "build/icon.icns",
             "icon-size": 80,
-            "background": "assets/background.png",
+            "background": "build/background.png",
             "contents": [{
                 "x": 300,
                 "y": 120,
