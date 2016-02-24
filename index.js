@@ -3,7 +3,27 @@
 var remote = require('remote');
 //var converter = remote.require('./build/Release/converter');
 var Converter = require('./cpp/build/Release/converter');
+var Package = require('./package.json');
 
+var Menu = remote.require('menu');
+var template = [
+    {
+        label: 'SP360Converter',
+        submenu: [{
+            label: 'About SP360Converter',
+            selector: 'orderFrontStandardAboutPanel:'
+        },{
+            type: 'separator'
+        },{
+            label: 'Quit',
+            accelerator: 'Command+Q',
+            selector: 'terminate:'
+        }]
+    }
+];
+
+var menu = Menu.buildFromTemplate(template);
+Menu.setApplicationMenu(menu);
 
 var SP360ConverterApp = angular.module('SP360Converter', ['ngElectron']);
 
