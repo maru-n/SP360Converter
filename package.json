@@ -20,18 +20,18 @@
         "electron-prebuilt": "^0.36.7"
     },
     "build": {
-        "app-bundle-id": "your.id",
-        "app-category-type": "your.app.category.type",
         "osx": {
+            "icon": "assets/icon.icns",
             "icon-size": 80,
+            "background": "assets/background.png",
             "contents": [{
-                "x": 410,
-                "y": 220,
+                "x": 300,
+                "y": 120,
                 "type": "link",
                 "path": "/Applications"
             }, {
-                "x": 130,
-                "y": 220,
+                "x": 100,
+                "y": 120,
                 "type": "file"
             }]
         }
