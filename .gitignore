@@ -25,12 +25,7 @@ build/Release
 # Dependency directory
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
 node_modules
-.python-version
-build/binding.Makefile
-build/config.gypi
-build/convert.target.mk
-build/gyp-mac-tool
-build/Makefile
 bower_components
-converter.target.mk
+.python-version
+cpp/build
 dist

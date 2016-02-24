@@ -2,7 +2,7 @@
 
 var remote = require('remote');
 //var converter = remote.require('./build/Release/converter');
-var converter = require('./build/Release/converter');
+var converter = require('./cpp/build/Release/converter');
 
 var SP360Converter = angular.module('SP360Converter', ['ngElectron']);
 
