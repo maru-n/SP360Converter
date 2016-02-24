@@ -1,6 +1,6 @@
 {
     "name": "SP360Converter",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "Convert movie recored by SP360.",
     "main": "main.js",
     "scripts": {
