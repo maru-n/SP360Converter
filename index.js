@@ -86,7 +86,10 @@ function($scope, $q, $timeout, electron) {
 
     $scope.openFile = function() {
         var deferred = $q.defer()
-        var options = {};
+        var options = {
+            filters: [
+                { name: 'Movies', extensions: ['mp4'] },
+            ]};
         Dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), options, function(filenames){
             if (filenames) {
                 deferred.resolve(filenames);
@@ -104,7 +107,10 @@ function($scope, $q, $timeout, electron) {
             return
         }
         var deferred = $q.defer()
-        var options = {};
+        var options = {
+            filters: [
+                { name: 'Movies', extensions: ['mp4'] },
+            ]};
         Dialog.showSaveDialog(BrowserWindow.getFocusedWindow(), options, function(filename){
             $scope.dst_file = filename;
             if (!$scope.src_file || !$scope.dst_file) {
