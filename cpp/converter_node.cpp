@@ -65,18 +65,19 @@ void convertAsync(uv_work_t *req) {
         work->progress = progress;
         uv_async_send(&work->progress_async);
     };
-    convertMovie(work->src_file,
-                 work->dst_file,
-                 work->dst_width,
-                 work->dst_height,
-                 work->start_time,
-                 work->end_time,
-                 work->angle_start,
-                 work->angle_end,
-                 work->radius_in,
-                 work->radius_out,
-                 work->n_split,
-                 progress_callback);
+    SP360::convertMovie(
+        work->src_file,
+        work->dst_file,
+        work->dst_width,
+        work->dst_height,
+        work->start_time,
+        work->end_time,
+        work->angle_start,
+        work->angle_end,
+        work->radius_in,
+        work->radius_out,
+        work->n_split,
+        progress_callback);
 }
 
 
@@ -115,17 +116,18 @@ void makePreviewImageMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
     int height = args[2]->NumberValue();
     bool border = args[3]->BooleanValue();
     if (border) {
-        makeConvertBorderImage(work->src_file, dst_img_ptr,
-                               width, height,
-                               work->preview_time,
-                               work->angle_start,
-                               work->angle_end,
-                               work->radius_in,
-                               work->radius_out,
-                               work->n_split,
-                               1024, 256);
+        SP360::makeConvertBorderImage(
+            work->src_file, dst_img_ptr,
+            width, height,
+            work->preview_time,
+            work->angle_start,
+            work->angle_end,
+            work->radius_in,
+            work->radius_out,
+            work->n_split,
+            1024, 256);
     } else {
-        makeImage(work->src_file, dst_img_ptr, width, height, work->preview_time);
+        SP360::makeImage(work->src_file, dst_img_ptr, width, height, work->preview_time);
     }
     args.GetReturnValue().Set(Undefined(isolate));
 }
@@ -141,14 +143,15 @@ void makeConvertedPreviewImageMethod(const v8::FunctionCallbackInfo<v8::Value>& 
     unsigned char* dst_img_ptr = (unsigned char*)array->Buffer()->GetContents().Data();
     int width = args[1]->NumberValue();
     int height = args[2]->NumberValue();
-    makeConvertedImage(work->src_file, dst_img_ptr,
-                       width, height,
-                       work->preview_time,
-                       work->angle_start,
-                       work->angle_end,
-                       work->radius_in,
-                       work->radius_out,
-                       work->n_split);
+    SP360::makeConvertedImage(
+        work->src_file, dst_img_ptr,
+        width, height,
+        work->preview_time,
+        work->angle_start,
+        work->angle_end,
+        work->radius_in,
+        work->radius_out,
+        work->n_split);
 
     args.GetReturnValue().Set(Undefined(isolate));
 }
