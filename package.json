@@ -6,7 +6,7 @@
     "scripts": {
         "start": "electron .",
         "test": "echo \"Error: no test specified\" && exit 1",
-        "build-cpp": "cd cpp; node-gyp build",
+        "build:cpp": "cd cpp; node-gyp build",
         "postinstall": "install-app-deps",
         "pack": "build",
         "dist": "build"
