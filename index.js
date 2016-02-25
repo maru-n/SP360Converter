@@ -1,11 +1,42 @@
 'use strict';
 
 var remote = require('remote');
-//var converter = remote.require('./build/Release/converter');
+//var Converter = remote.require('./cpp/build/Release/converter');
 var Converter = require('./cpp/build/Release/converter');
+var Package = require('./package.json');
 
+var Menu = remote.require('menu');
+var template = [
+    {
+        label: 'SP360Converter',
+        submenu: [{
+            label: 'About SP360Converter',
+            selector: 'orderFrontStandardAboutPanel:'
+        },{
+            type: 'separator'
+        },{
+            label: 'Quit',
+            accelerator: 'Command+Q',
+            selector: 'terminate:'
+        }]
+    }
+];
+
+var menu = Menu.buildFromTemplate(template);
+Menu.setApplicationMenu(menu);
 
 var SP360ConverterApp = angular.module('SP360Converter', ['ngElectron']);
+
+SP360ConverterApp.directive('numberInput', function() {
+    return {
+        require: 'ngModel',
+        link: function(scope, element, attrs, ngModel) {
+            ngModel.$parsers.push(function(value) {
+                return parseFloat(value);
+            });
+        }
+    };
+});
 
 SP360ConverterApp.controller('MainController', ['$scope', '$q', '$timeout', 'electron',
 function($scope, $q, $timeout, electron) {
@@ -20,7 +51,7 @@ function($scope, $q, $timeout, electron) {
     $scope.dst_width    = 1280;
     $scope.dst_height   = 720;
     $scope.angle_start  = 0;
-    $scope.angle_end    = 360;
+    $scope.angle        = 360;
     $scope.radius_in    = 0.0;
     $scope.radius_out   = 1.0
     $scope.n_split_choices = [1, 2];
@@ -66,7 +97,7 @@ function($scope, $q, $timeout, electron) {
             radius_in:   $scope.radius_in,
             radius_out:  $scope.radius_out,
             angle_start: $scope.angle_start * 2.0 * Math.PI / 360.0,
-            angle_end:   $scope.angle_end * 2.0 * Math.PI / 360.0,
+            angle_end:   ($scope.angle_start + $scope.angle) * 2.0 * Math.PI / 360.0,
             n_split:     $scope.n_split,
         });
     }
@@ -78,7 +109,7 @@ function($scope, $q, $timeout, electron) {
             originalPreviewContext.putImageData(originalPreviewData, 0, 0);
             Converter.makeConvertedPreviewImage(convertedPreviewData.data, convertedPreviewWidth, convertedPreviewHeight);
             convertedPreviewContext.putImageData(convertedPreviewData, 0, 0);
-        });
+        },1);
     }
 
     $scope.isConverting = function() {
