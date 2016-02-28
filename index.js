@@ -40,6 +40,7 @@ SP360ConverterApp.directive('numberInput', function() {
 
 SP360ConverterApp.controller('MainController', ['$scope', '$q', '$timeout', 'electron',
 function($scope, $q, $timeout, electron) {
+    var converter = new Converter();
     var BrowserWindow = electron.browserWindow;
     var Dialog = electron.dialog;
 
@@ -86,7 +87,7 @@ function($scope, $q, $timeout, electron) {
     var convertedPreviewData = convertedPreviewContext.createImageData(convertedPreviewWidth, convertedPreviewHeight);
 
     var updateConverter = function() {
-        Converter.setup({
+        converter.setup({
             src_file:    $scope.src_file,
             dst_file:    $scope.dst_file,
             start_time:  $scope.start_time,
@@ -105,11 +106,11 @@ function($scope, $q, $timeout, electron) {
     $scope.updatePreview = function() {
         updateConverter();
         $timeout(function(){
-            Converter.makeOriginalPreviewImage(originalPreviewData.data, originalPreviewWidth, originalPreviewWheight, true);
+            converter.makeOriginalPreviewImage(originalPreviewData.data, originalPreviewWidth, originalPreviewWheight, true);
             originalPreviewContext.putImageData(originalPreviewData, 0, 0);
         },1);
         $timeout(function(){
-            Converter.makeConvertedPreviewImage(convertedPreviewData.data, convertedPreviewWidth, convertedPreviewHeight);
+            converter.makeConvertedPreviewImage(convertedPreviewData.data, convertedPreviewWidth, convertedPreviewHeight);
             convertedPreviewContext.putImageData(convertedPreviewData, 0, 0);
         },1);
     }
@@ -131,7 +132,7 @@ function($scope, $q, $timeout, electron) {
         });
         deferred.promise.then(function(filenames){
             $scope.src_file = filenames[0];
-            Converter.open(filenames[0]);
+            converter.open(filenames[0]);
             updateConverter();
             $scope.updatePreview();
         });
@@ -152,7 +153,7 @@ function($scope, $q, $timeout, electron) {
                 return;
             }
             updateConverter();
-            Converter.convert(function(err, status, progress){
+            converter.convert(function(err, status, progress){
                 if (err) {
                     deferred.reject(err);
                 } else if (status == "progress") {

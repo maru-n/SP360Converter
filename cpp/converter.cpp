@@ -12,6 +12,7 @@ namespace SP360
 
     int Converter::open(std::string src_file)
     {
+        this->src_file = src_file;
         videoCapture.open(src_file.c_str());
         videoCapture.set(CAP_PROP_POS_MSEC, 0);
         videoCapture >> previewImage;
@@ -26,6 +27,34 @@ namespace SP360
         return 0;
     }
 
+    int Converter::makeOriginalPreviewImage(unsigned char* dst_array, int width, int height, bool border)
+    {
+        if (border) {
+            this->makeConvertBorderImage(this->src_file, dst_array, width, height, this->preview_time,
+                this->angle_start, this->angle_end, this->radius_in, this->radius_out, this->n_split,
+                1024, 256);
+        } else {
+            this->makeImage(this->src_file, dst_array, width, height, this->preview_time);
+        }
+        return 0;
+    }
+
+    int Converter::makeConvertedPreviewImage(unsigned char* dst_array, int width, int height)
+    {
+        this->makeConvertedImage(this->src_file, dst_array, width, height, this->preview_time,
+                               this->angle_start, this->angle_end, this->radius_in, this->radius_out, this->n_split);
+        return 0;
+    }
+
+    int Converter::convert(std::string filename, std::function<void(float)> progress_callback)
+    {
+
+        return Converter::convertMovie(this->src_file, filename, this->dst_width, this->dst_height,
+            this->start_time, this->end_time, this->angle_start, this->angle_end,
+            this->radius_in, this->radius_out, this->n_split, progress_callback);
+    }
+
+    // Legacy
     Point calcOriginalPoint(Point converted_pos,
                             MatSize original_size, MatSize converted_size,
                             double angle_start, double angle_end,
