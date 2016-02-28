@@ -7,6 +7,8 @@
 
 namespace SP360
 {
+    int open(std::string src_file);
+
     int makeImage(std::string src_file, unsigned char* dst_array,
                   unsigned int dst_width, unsigned int dst_height,
                   unsigned int time);

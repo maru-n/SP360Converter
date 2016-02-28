@@ -104,7 +104,7 @@ void convertMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
 }
 
 
-void makePreviewImageMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+void makeOriginalPreviewImage(const v8::FunctionCallbackInfo<v8::Value>& args) {
     Isolate* isolate = args.GetIsolate();
     if (!args[1]->IsNumber() || !args[2]->IsNumber()) {
         isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "Wrong arguments")));
@@ -133,7 +133,7 @@ void makePreviewImageMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
 }
 
 
-void makeConvertedPreviewImageMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
+void makeConvertedPreviewImage(const v8::FunctionCallbackInfo<v8::Value>& args) {
     Isolate* isolate = args.GetIsolate();
     if (!args[1]->IsNumber() || !args[2]->IsNumber()) {
         isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "Wrong arguments")));
@@ -189,14 +189,27 @@ void setupMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
 }
 
 
+void open(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    Isolate* isolate = args.GetIsolate();
+
+    v8::String::Utf8Value src_file_utf(args[0]->ToString());
+    std::string src_file = std::string(*src_file_utf);
+    SP360::open(src_file);
+
+    args.GetReturnValue().Set(Undefined(isolate));
+}
+
+
 void init(Local<Object> exports) {
     work = new Work();
     work->request.data = work;
     work->progress_async.data = work;
+
+    NODE_SET_METHOD(exports, "open", open);
     NODE_SET_METHOD(exports, "setup", setupMethod);
     NODE_SET_METHOD(exports, "convert", convertMethod);
-    NODE_SET_METHOD(exports, "makePreviewImage", makePreviewImageMethod);
-    NODE_SET_METHOD(exports, "makeConvertedPreviewImage", makeConvertedPreviewImageMethod);
+    NODE_SET_METHOD(exports, "makeOriginalPreviewImage", makeOriginalPreviewImage);
+    NODE_SET_METHOD(exports, "makeConvertedPreviewImage", makeConvertedPreviewImage);
 }
 
 NODE_MODULE(converter, init)

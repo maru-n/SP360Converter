@@ -105,7 +105,7 @@ function($scope, $q, $timeout, electron) {
     $scope.updatePreview = function() {
         $timeout(function(){
             updateConverter();
-            Converter.makePreviewImage(originalPreviewData.data, originalPreviewWidth, originalPreviewWheight, true);
+            Converter.makeOriginalPreviewImage(originalPreviewData.data, originalPreviewWidth, originalPreviewWheight, true);
             originalPreviewContext.putImageData(originalPreviewData, 0, 0);
             Converter.makeConvertedPreviewImage(convertedPreviewData.data, convertedPreviewWidth, convertedPreviewHeight);
             convertedPreviewContext.putImageData(convertedPreviewData, 0, 0);
@@ -129,6 +129,7 @@ function($scope, $q, $timeout, electron) {
         });
         deferred.promise.then(function(filenames){
             $scope.src_file = filenames[0];
+            Converter.open(filenames[0]);
             updateConverter();
             $scope.updatePreview();
         });

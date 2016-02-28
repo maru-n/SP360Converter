@@ -9,6 +9,25 @@ namespace SP360
 {
     using namespace cv;
 
+    VideoCapture videoCapture;
+    Mat previewImage;
+
+    int open(std::string src_file)
+    {
+        videoCapture.open(src_file.c_str());
+        videoCapture.set(CAP_PROP_POS_MSEC, 0);
+        videoCapture >> previewImage;
+
+        Mat tmp_img;
+        videoCapture >> tmp_img;
+        if( tmp_img.empty() ) {
+            return 1;
+        }
+        cvtColor(tmp_img, previewImage, CV_BGR2RGBA );
+
+        return 0;
+    }
+
     Point calcOriginalPoint(Point converted_pos,
                             MatSize original_size, MatSize converted_size,
                             double angle_start, double angle_end,
@@ -36,14 +55,19 @@ namespace SP360
                       double radius_in, double radius_out,
                       int n_split)
     {
-        for (int j = 0; j < dst_img.size[0]; j++) {
-            for (int i = 0; i < dst_img.size[1]; i++) {
+        for (int j = 0; j < dst_img.rows; j++) {
+            for (int i = 0; i < dst_img.cols; i++) {
                 Point dst_point = Point(i, j);
                 Point src_point = calcOriginalPoint(dst_point, src_img.size, dst_img.size,
                                                     angle_start, angle_end,
                                                     radius_in, radius_out,
                                                     n_split);
-                dst_img.at<Vec3b>(Point(i, j)) = src_img.at<Vec3b>(src_point);
+                int channels = src_img.channels();
+                for (int c = 0; c < channels; c++) {
+                    int dst_idx = channels * (dst_point.x + dst_point.y * dst_img.cols) + c;
+                    int src_idx = channels * (src_point.x + src_point.y * src_img.cols) + c;
+                    dst_img.data[dst_idx] = src_img.data[src_idx];
+                }
             }
         }
     }
@@ -53,29 +77,13 @@ namespace SP360
                   unsigned int dst_width, unsigned int dst_height,
                   unsigned int time)
     {
-        clock_t start = clock();
         using namespace cv;
-
-        VideoCapture cap(src_file.c_str());
-        cap.set(CAP_PROP_POS_MSEC, time);
-        Mat src_img;
-        cap >> src_img;
-        if( src_img.empty() ) {
-            return 1;
-        }
-        std::cout << clock()-start << std::endl;
-        start = clock();
-        Mat tmp_img;
-        cvtColor(src_img, tmp_img, CV_BGR2RGBA );
-
         Mat dst_img(dst_height, dst_width, CV_8UC4, dst_array);
-        resize(tmp_img, dst_img, dst_img.size());
-        std::cout << clock()-start << std::endl;
-        start = clock();
+        resize(previewImage, dst_img, dst_img.size());
         return 0;
     }
 
-    #include <time.h>
+
     int makeConvertBorderImage(std::string src_file, unsigned char* dst_array,
                                unsigned int dst_width, unsigned int dst_height,
                                unsigned int time,
@@ -119,7 +127,6 @@ namespace SP360
     }
 
 
-
     int makeConvertedImage(std::string src_file, unsigned char* dst_array,
                            unsigned int dst_width, unsigned int dst_height,
                            unsigned int time,
@@ -128,20 +135,8 @@ namespace SP360
                            int n_split)
     {
         using namespace cv;
-
-        VideoCapture cap(src_file.c_str());
-        cap.set(CAP_PROP_POS_MSEC, time);
-        Mat src_img;
-        cap >> src_img;
-        if( src_img.empty() ) {
-            return 1;
-        }
-        Mat tmp_img(dst_height, dst_width, src_img.type());
-        convertImage(src_img, tmp_img, angle_start, angle_end, radius_in, radius_out, n_split);
-
         Mat dst_img(dst_height, dst_width, CV_8UC4, dst_array);
-        cvtColor(tmp_img, dst_img, CV_BGR2RGBA);
-
+        convertImage(previewImage, dst_img, angle_start, angle_end, radius_in, radius_out, n_split);
         return 0;
     }
 
