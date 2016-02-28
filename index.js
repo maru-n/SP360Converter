@@ -103,10 +103,12 @@ function($scope, $q, $timeout, electron) {
     }
 
     $scope.updatePreview = function() {
+        updateConverter();
         $timeout(function(){
-            updateConverter();
             Converter.makeOriginalPreviewImage(originalPreviewData.data, originalPreviewWidth, originalPreviewWheight, true);
             originalPreviewContext.putImageData(originalPreviewData, 0, 0);
+        },1);
+        $timeout(function(){
             Converter.makeConvertedPreviewImage(convertedPreviewData.data, convertedPreviewWidth, convertedPreviewHeight);
             convertedPreviewContext.putImageData(convertedPreviewData, 0, 0);
         },1);
