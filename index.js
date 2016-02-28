@@ -40,6 +40,7 @@ SP360ConverterApp.directive('numberInput', function() {
 
 SP360ConverterApp.controller('MainController', ['$scope', '$q', '$timeout', 'electron',
 function($scope, $q, $timeout, electron) {
+    var converter = new Converter();
     var BrowserWindow = electron.browserWindow;
     var Dialog = electron.dialog;
 
@@ -86,9 +87,7 @@ function($scope, $q, $timeout, electron) {
     var convertedPreviewData = convertedPreviewContext.createImageData(convertedPreviewWidth, convertedPreviewHeight);
 
     var updateConverter = function() {
-        Converter.setup({
-            src_file:    $scope.src_file,
-            dst_file:    $scope.dst_file,
+        converter.setup({
             start_time:  $scope.start_time,
             end_time:    $scope.end_time,
             preview_time:$scope.preview_time,
@@ -103,11 +102,13 @@ function($scope, $q, $timeout, electron) {
     }
 
     $scope.updatePreview = function() {
+        updateConverter();
         $timeout(function(){
-            updateConverter();
-            Converter.makePreviewImage(originalPreviewData.data, originalPreviewWidth, originalPreviewWheight, true);
+            converter.makeOriginalPreviewImage(originalPreviewData.data, originalPreviewWidth, originalPreviewWheight, true);
             originalPreviewContext.putImageData(originalPreviewData, 0, 0);
-            Converter.makeConvertedPreviewImage(convertedPreviewData.data, convertedPreviewWidth, convertedPreviewHeight);
+        },1);
+        $timeout(function(){
+            converter.makeConvertedPreviewImage(convertedPreviewData.data, convertedPreviewWidth, convertedPreviewHeight);
             convertedPreviewContext.putImageData(convertedPreviewData, 0, 0);
         },1);
     }
@@ -129,6 +130,7 @@ function($scope, $q, $timeout, electron) {
         });
         deferred.promise.then(function(filenames){
             $scope.src_file = filenames[0];
+            converter.open(filenames[0]);
             updateConverter();
             $scope.updatePreview();
         });
@@ -149,7 +151,8 @@ function($scope, $q, $timeout, electron) {
                 return;
             }
             updateConverter();
-            Converter.convert(function(err, status, progress){
+            converter.convert(filename,
+                function(err, status, progress){
                 if (err) {
                     deferred.reject(err);
                 } else if (status == "progress") {

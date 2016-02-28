@@ -1,7 +1,11 @@
 {
     "targets": [{
         "target_name": "converter",
-        "sources": [ "converter_node.cpp" , "converter.cpp" ],
+        "sources": [
+            "addon.cpp",
+            "converter_wrap.cpp",
+            "converter.cpp"
+        ],
         "cflags": [
             "-Wall"
             "-std=c++11",
