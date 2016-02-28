@@ -26,26 +26,18 @@ namespace SP360
         double radius_out;
         int n_split;
 
+        int n_points_w;
+        int n_points_h;
+
         unsigned int preview_time;
 
+        Converter();
         int open(std::string src_file);
         int makeOriginalPreviewImage(unsigned char* dst_array, int width, int height, bool border);
         int makeConvertedPreviewImage(unsigned char* dst_array, int width, int height);
         int convert(std::string filename, std::function<void(float)> progress_callback);
 
         //Legacy
-        int makeImage(std::string src_file, unsigned char* dst_array,
-                  unsigned int dst_width, unsigned int dst_height,
-                  unsigned int time);
-
-        int makeConvertBorderImage(std::string src_file, unsigned char* dst_array,
-                               unsigned int dst_width, unsigned int dst_height,
-                               unsigned int time,
-                               double angle_start, double angle_end,
-                               double radius_in, double radius_out,
-                               int n_split,
-                               int n_points_w, int n_points_h);
-
 
         int makeConvertedImage(std::string src_file, unsigned char* dst_array,
                            unsigned int dst_width, unsigned int dst_height,

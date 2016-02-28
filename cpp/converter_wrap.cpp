@@ -7,7 +7,7 @@ using namespace SP360;
 
 
 //Legacy
-void callNodeCallback(ConverterWrap* converterWrap) {
+void callNodeCallbackFunc(ConverterWrap* converterWrap) {
     Isolate * isolate = Isolate::GetCurrent();
     v8::HandleScope handleScope(isolate); // Required for Node 4.x
     Local<Primitive> error;
@@ -22,53 +22,29 @@ void callNodeCallback(ConverterWrap* converterWrap) {
     Local<Function>::New(isolate, converterWrap->convertCallback)->Call(isolate->GetCurrentContext()->Global(), 3, argv);
 }
 
-void convertProgress(uv_async_t *handle) {
+void convertProgressFunc(uv_async_t *handle) {
     ConverterWrap *converterWrap = static_cast<ConverterWrap *>(handle->data);
-    callNodeCallback(converterWrap);
+    callNodeCallbackFunc(converterWrap);
 }
 
-void convertAsync(uv_work_t *req) {
+void convertAsyncFunc(uv_work_t *req) {
     ConverterWrap *converterWrap = static_cast<ConverterWrap *>(req->data);
     converterWrap->convertStatus = "progress";
     std::function<void(float)> progress_callback = [&converterWrap](float progress){
         converterWrap->convertProgress = progress;
         uv_async_send(&converterWrap->convertAsync);
     };
-    converterWrap->converter->convertMovie(
-        converterWrap->converter->src_file,
-        converterWrap->converter->dst_file,
-        converterWrap->converter->dst_width,
-        converterWrap->converter->dst_height,
-        converterWrap->converter->start_time,
-        converterWrap->converter->end_time,
-        converterWrap->converter->angle_start,
-        converterWrap->converter->angle_end,
-        converterWrap->converter->radius_in,
-        converterWrap->converter->radius_out,
-        converterWrap->converter->n_split,
-        progress_callback);
+    converterWrap->converter->convert(converterWrap->converter->dst_file, progress_callback);
 }
 
-void convertAfter(uv_work_t *req, int status) {
+void convertAfterFunc(uv_work_t *req, int status) {
     ConverterWrap *converterWrap = static_cast<ConverterWrap *>(req->data);
     converterWrap->convertStatus = "successed";
     converterWrap->convertProgress = 1.0;
-    callNodeCallback(converterWrap);
+    callNodeCallbackFunc(converterWrap);
     converterWrap->convertCallback.Reset();
     uv_close((uv_handle_t*) &converterWrap->convertAsync, NULL);
 }
-
-void convertMethod(const v8::FunctionCallbackInfo<v8::Value>& args, ConverterWrap* converterWrap) {
-    Isolate* isolate = args.GetIsolate();
-    Local<Function> callback = Local<Function>::Cast(args[0]);
-    converterWrap->convertCallback.Reset(isolate, callback);
-
-    uv_async_init(uv_default_loop(), &converterWrap->convertAsync, convertProgress);
-    uv_queue_work(uv_default_loop(), &converterWrap->convertRequest, convertAsync, convertAfter);
-
-    args.GetReturnValue().Set(Undefined(isolate));
-}
-
 
 
 
@@ -211,5 +187,11 @@ void ConverterWrap::Convert(const v8::FunctionCallbackInfo<v8::Value>& args) {
     Isolate* isolate = args.GetIsolate();
     ConverterWrap* obj = ObjectWrap::Unwrap<ConverterWrap>(args.Holder());
 
-    convertMethod(args, obj);
+    Local<Function> callback = Local<Function>::Cast(args[0]);
+    obj->convertCallback.Reset(isolate, callback);
+
+    uv_async_init(uv_default_loop(), &obj->convertAsync, convertProgressFunc);
+    uv_queue_work(uv_default_loop(), &obj->convertRequest, convertAsyncFunc, convertAfterFunc);
+
+    args.GetReturnValue().Set(Undefined(isolate));
 }

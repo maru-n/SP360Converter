@@ -10,50 +10,6 @@ namespace SP360
 {
     using namespace cv;
 
-    int Converter::open(std::string src_file)
-    {
-        this->src_file = src_file;
-        videoCapture.open(src_file.c_str());
-        videoCapture.set(CAP_PROP_POS_MSEC, 0);
-        videoCapture >> previewImage;
-
-        Mat tmp_img;
-        videoCapture >> tmp_img;
-        if( tmp_img.empty() ) {
-            return 1;
-        }
-        cvtColor(tmp_img, previewImage, CV_BGR2RGBA );
-
-        return 0;
-    }
-
-    int Converter::makeOriginalPreviewImage(unsigned char* dst_array, int width, int height, bool border)
-    {
-        if (border) {
-            this->makeConvertBorderImage(this->src_file, dst_array, width, height, this->preview_time,
-                this->angle_start, this->angle_end, this->radius_in, this->radius_out, this->n_split,
-                1024, 256);
-        } else {
-            this->makeImage(this->src_file, dst_array, width, height, this->preview_time);
-        }
-        return 0;
-    }
-
-    int Converter::makeConvertedPreviewImage(unsigned char* dst_array, int width, int height)
-    {
-        this->makeConvertedImage(this->src_file, dst_array, width, height, this->preview_time,
-                               this->angle_start, this->angle_end, this->radius_in, this->radius_out, this->n_split);
-        return 0;
-    }
-
-    int Converter::convert(std::string filename, std::function<void(float)> progress_callback)
-    {
-
-        return Converter::convertMovie(this->src_file, filename, this->dst_width, this->dst_height,
-            this->start_time, this->end_time, this->angle_start, this->angle_end,
-            this->radius_in, this->radius_out, this->n_split, progress_callback);
-    }
-
     // Legacy
     Point calcOriginalPoint(Point converted_pos,
                             MatSize original_size, MatSize converted_size,
@@ -100,27 +56,56 @@ namespace SP360
     }
 
 
-    int Converter::makeImage(std::string src_file, unsigned char* dst_array,
-                  unsigned int dst_width, unsigned int dst_height,
-                  unsigned int time)
+    int Converter::makeConvertedImage(std::string src_file, unsigned char* dst_array,
+                           unsigned int dst_width, unsigned int dst_height,
+                           unsigned int time,
+                           double angle_start, double angle_end,
+                           double radius_in, double radius_out,
+                           int n_split)
     {
         using namespace cv;
         Mat dst_img(dst_height, dst_width, CV_8UC4, dst_array);
-        resize(previewImage, dst_img, dst_img.size());
+        convertImage(previewImage, dst_img, angle_start, angle_end, radius_in, radius_out, n_split);
         return 0;
     }
 
 
-    int Converter::makeConvertBorderImage(std::string src_file, unsigned char* dst_array,
-                               unsigned int dst_width, unsigned int dst_height,
-                               unsigned int time,
-                               double angle_start, double angle_end,
-                               double radius_in, double radius_out,
-                               int n_split,
-                               int n_points_w, int n_points_h)
+
+
+
+
+
+
+    Converter::Converter()
     {
-        Converter::makeImage(src_file, dst_array, dst_width, dst_height, time);
-        Mat dst_img(dst_height, dst_width, CV_8UC4, dst_array);
+        this->n_points_w = 1024;
+        this->n_points_h = 225;
+    }
+
+    int Converter::open(std::string src_file)
+    {
+        this->src_file = src_file;
+        videoCapture.open(src_file.c_str());
+        videoCapture.set(CAP_PROP_POS_MSEC, 0);
+        videoCapture >> previewImage;
+
+        Mat tmp_img;
+        videoCapture >> tmp_img;
+        if( tmp_img.empty() ) {
+            return 1;
+        }
+        cvtColor(tmp_img, previewImage, CV_BGR2RGBA );
+
+        return 0;
+    }
+
+    int Converter::makeOriginalPreviewImage(unsigned char* dst_array, int width, int height, bool border)
+    {
+        Mat dst_img(height, width, CV_8UC4, dst_array);
+        resize(previewImage, dst_img, dst_img.size());
+
+        if (!border) { return 0; }
+
         Mat bd_img(n_points_h, n_points_w, CV_8U);
         for (int s = 0; s < n_split; s++) {
             for (int n = 0; n < bd_img.size[1]*2 + bd_img.size[0]*2 - 4; n++) {
@@ -150,54 +135,38 @@ namespace SP360
                 dst_img.data[idx*4+2] = 0;
             }
         }
+
         return 0;
     }
 
-
-    int Converter::makeConvertedImage(std::string src_file, unsigned char* dst_array,
-                           unsigned int dst_width, unsigned int dst_height,
-                           unsigned int time,
-                           double angle_start, double angle_end,
-                           double radius_in, double radius_out,
-                           int n_split)
+    int Converter::makeConvertedPreviewImage(unsigned char* dst_array, int width, int height)
     {
-        using namespace cv;
-        Mat dst_img(dst_height, dst_width, CV_8UC4, dst_array);
-        convertImage(previewImage, dst_img, angle_start, angle_end, radius_in, radius_out, n_split);
+        this->makeConvertedImage(this->src_file, dst_array, width, height, this->preview_time,
+                               this->angle_start, this->angle_end, this->radius_in, this->radius_out, this->n_split);
         return 0;
     }
 
-
-    int Converter::convertMovie(std::string src_file, std::string dst_file,
-                     unsigned int dst_width, unsigned int dst_height,
-                     unsigned int start_time, unsigned int end_time,
-                     double angle_start, double angle_end,
-                     double radius_in, double radius_out,
-                     int n_split,
-                     std::function<void(float)> callback)
+    int Converter::convert(std::string filename, std::function<void(float)> progress_callback)
     {
-        using namespace cv;
-        VideoCapture cap(src_file.c_str());
-
-        double fps = cap.get(CAP_PROP_FPS);
+        double fps = videoCapture.get(CAP_PROP_FPS);
         int fourcc = VideoWriter::fourcc('a','v','c','1');
         VideoWriter writer(dst_file.c_str(), fourcc, fps, Size(dst_width, dst_height));
 
-        cap.set(CAP_PROP_POS_MSEC, start_time);
+        videoCapture.set(CAP_PROP_POS_MSEC, start_time);
         Mat frame;
         while (1) {
-            double current_pos = cap.get(CV_CAP_PROP_POS_MSEC);
+            double current_pos = videoCapture.get(CV_CAP_PROP_POS_MSEC);
             if (current_pos > end_time) {
                 break;
             }
-            cap >> frame;
+            videoCapture >> frame;
             if( frame.empty() )
-                break;
+                return -1;
             Mat new_frame = Mat(dst_height, dst_width, frame.type());
             convertImage(frame, new_frame, angle_start, angle_end, radius_in, radius_out, n_split);
             writer << new_frame;
             float progress = (current_pos - start_time) / (end_time - start_time);
-            callback(progress);
+            progress_callback(progress);
         }
         return 0;
     }
