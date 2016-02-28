@@ -56,23 +56,6 @@ namespace SP360
     }
 
 
-    int Converter::makeConvertedImage(std::string src_file, unsigned char* dst_array,
-                           unsigned int dst_width, unsigned int dst_height,
-                           unsigned int time,
-                           double angle_start, double angle_end,
-                           double radius_in, double radius_out,
-                           int n_split)
-    {
-        using namespace cv;
-        Mat dst_img(dst_height, dst_width, CV_8UC4, dst_array);
-        convertImage(previewImage, dst_img, angle_start, angle_end, radius_in, radius_out, n_split);
-        return 0;
-    }
-
-
-
-
-
 
 
 
@@ -80,13 +63,13 @@ namespace SP360
     {
         this->n_points_w = 1024;
         this->n_points_h = 225;
+        this->preview_time = 0;
     }
 
     int Converter::open(std::string src_file)
     {
-        this->src_file = src_file;
         videoCapture.open(src_file.c_str());
-        videoCapture.set(CAP_PROP_POS_MSEC, 0);
+        videoCapture.set(CAP_PROP_POS_MSEC, preview_time);
         videoCapture >> previewImage;
 
         Mat tmp_img;
@@ -141,8 +124,8 @@ namespace SP360
 
     int Converter::makeConvertedPreviewImage(unsigned char* dst_array, int width, int height)
     {
-        this->makeConvertedImage(this->src_file, dst_array, width, height, this->preview_time,
-                               this->angle_start, this->angle_end, this->radius_in, this->radius_out, this->n_split);
+        Mat dst_img(height, width, CV_8UC4, dst_array);
+        convertImage(previewImage, dst_img, angle_start, angle_end, radius_in, radius_out, n_split);
         return 0;
     }
 
@@ -150,7 +133,7 @@ namespace SP360
     {
         double fps = videoCapture.get(CAP_PROP_FPS);
         int fourcc = VideoWriter::fourcc('a','v','c','1');
-        VideoWriter writer(dst_file.c_str(), fourcc, fps, Size(dst_width, dst_height));
+        VideoWriter writer(filename.c_str(), fourcc, fps, Size(dst_width, dst_height));
 
         videoCapture.set(CAP_PROP_POS_MSEC, start_time);
         Mat frame;

@@ -88,8 +88,6 @@ function($scope, $q, $timeout, electron) {
 
     var updateConverter = function() {
         converter.setup({
-            src_file:    $scope.src_file,
-            dst_file:    $scope.dst_file,
             start_time:  $scope.start_time,
             end_time:    $scope.end_time,
             preview_time:$scope.preview_time,
@@ -153,7 +151,8 @@ function($scope, $q, $timeout, electron) {
                 return;
             }
             updateConverter();
-            converter.convert(function(err, status, progress){
+            converter.convert(filename,
+                function(err, status, progress){
                 if (err) {
                     deferred.reject(err);
                 } else if (status == "progress") {

@@ -11,8 +11,10 @@ class ConverterWrap : public node::ObjectWrap {
         static void Init(v8::Local<v8::Object> module);
 
         SP360::Converter* converter;
+
         uv_work_t  convertRequest;
         uv_async_t convertAsync;
+        std::string convertDstFile;
         v8::Persistent<v8::Function> convertCallback;
         double convertProgress;
         std::string convertError;

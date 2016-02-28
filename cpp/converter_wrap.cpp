@@ -34,7 +34,7 @@ void convertAsyncFunc(uv_work_t *req) {
         converterWrap->convertProgress = progress;
         uv_async_send(&converterWrap->convertAsync);
     };
-    converterWrap->converter->convert(converterWrap->converter->dst_file, progress_callback);
+    converterWrap->converter->convert(converterWrap->convertDstFile, progress_callback);
 }
 
 void convertAfterFunc(uv_work_t *req, int status) {
@@ -84,12 +84,14 @@ void ConverterWrap::New(const FunctionCallbackInfo<Value>& args) {
     if (args.IsConstructCall()) {
         // Invoked as constructor: `new MyObject(...)`
         ConverterWrap* obj = new ConverterWrap();
+        /*
         Converter* converter = obj->converter;
         if (args[0]->IsString()) {
             v8::String::Utf8Value src_file_utf(args[0]->ToString());
             std::string src_file = std::string(*src_file_utf);
             converter->open(src_file);
         }
+        */
         obj->Wrap(args.This());
         args.GetReturnValue().Set(args.This());
     } else {
@@ -119,11 +121,6 @@ void ConverterWrap::Setup(const v8::FunctionCallbackInfo<v8::Value>& args) {
     Converter* converter = obj->converter;
 
     Handle<Object> data = Handle<Object>::Cast(args[0]);
-
-    v8::String::Utf8Value src_file_utf(data->Get(String::NewFromUtf8(isolate,"src_file")));
-    v8::String::Utf8Value dst_file_utf(data->Get(String::NewFromUtf8(isolate,"dst_file")));
-    converter->src_file = std::string(*src_file_utf);
-    converter->dst_file = std::string(*dst_file_utf);
 
     if (data->Get(String::NewFromUtf8(isolate,"start_time"))->IsNumber())
         converter->start_time = data->Get(String::NewFromUtf8(isolate,"start_time"))->NumberValue();
@@ -187,9 +184,15 @@ void ConverterWrap::Convert(const v8::FunctionCallbackInfo<v8::Value>& args) {
     Isolate* isolate = args.GetIsolate();
     ConverterWrap* obj = ObjectWrap::Unwrap<ConverterWrap>(args.Holder());
 
-    Local<Function> callback = Local<Function>::Cast(args[0]);
+    // filename
+    v8::String::Utf8Value dst_file_utf(args[0]);
+    obj->convertDstFile = std::string(*dst_file_utf);
+
+    // callback function
+    Local<Function> callback = Local<Function>::Cast(args[1]);
     obj->convertCallback.Reset(isolate, callback);
 
+    // invoke async function and callback
     uv_async_init(uv_default_loop(), &obj->convertAsync, convertProgressFunc);
     uv_queue_work(uv_default_loop(), &obj->convertRequest, convertAsyncFunc, convertAfterFunc);
 
