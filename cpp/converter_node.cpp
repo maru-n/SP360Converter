@@ -15,6 +15,8 @@ struct Work {
   uv_async_t progress_async;
   Persistent<Function> callback;
 
+  SP360::Converter* converter;
+
   std::string src_file;
   std::string dst_file;
   unsigned int start_time;
@@ -65,7 +67,7 @@ void convertAsync(uv_work_t *req) {
         work->progress = progress;
         uv_async_send(&work->progress_async);
     };
-    SP360::convertMovie(
+    work->converter->convertMovie(
         work->src_file,
         work->dst_file,
         work->dst_width,
@@ -116,7 +118,7 @@ void makeOriginalPreviewImage(const v8::FunctionCallbackInfo<v8::Value>& args) {
     int height = args[2]->NumberValue();
     bool border = args[3]->BooleanValue();
     if (border) {
-        SP360::makeConvertBorderImage(
+        work->converter->makeConvertBorderImage(
             work->src_file, dst_img_ptr,
             width, height,
             work->preview_time,
@@ -127,7 +129,7 @@ void makeOriginalPreviewImage(const v8::FunctionCallbackInfo<v8::Value>& args) {
             work->n_split,
             1024, 256);
     } else {
-        SP360::makeImage(work->src_file, dst_img_ptr, width, height, work->preview_time);
+        work->converter->makeImage(work->src_file, dst_img_ptr, width, height, work->preview_time);
     }
     args.GetReturnValue().Set(Undefined(isolate));
 }
@@ -143,7 +145,7 @@ void makeConvertedPreviewImage(const v8::FunctionCallbackInfo<v8::Value>& args) 
     unsigned char* dst_img_ptr = (unsigned char*)array->Buffer()->GetContents().Data();
     int width = args[1]->NumberValue();
     int height = args[2]->NumberValue();
-    SP360::makeConvertedImage(
+    work->converter->makeConvertedImage(
         work->src_file, dst_img_ptr,
         width, height,
         work->preview_time,
@@ -191,11 +193,10 @@ void setupMethod(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
 void open(const v8::FunctionCallbackInfo<v8::Value>& args) {
     Isolate* isolate = args.GetIsolate();
-
+    work->converter = new SP360::Converter();
     v8::String::Utf8Value src_file_utf(args[0]->ToString());
     std::string src_file = std::string(*src_file_utf);
-    SP360::open(src_file);
-
+    work->converter->open(src_file);
     args.GetReturnValue().Set(Undefined(isolate));
 }
 

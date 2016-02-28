@@ -4,15 +4,13 @@
 #include <math.h>
 #include <opencv2/opencv.hpp>
 #include <iostream>
+#include <time.h>
 
 namespace SP360
 {
     using namespace cv;
 
-    VideoCapture videoCapture;
-    Mat previewImage;
-
-    int open(std::string src_file)
+    int Converter::open(std::string src_file)
     {
         videoCapture.open(src_file.c_str());
         videoCapture.set(CAP_PROP_POS_MSEC, 0);
@@ -73,7 +71,7 @@ namespace SP360
     }
 
 
-    int makeImage(std::string src_file, unsigned char* dst_array,
+    int Converter::makeImage(std::string src_file, unsigned char* dst_array,
                   unsigned int dst_width, unsigned int dst_height,
                   unsigned int time)
     {
@@ -84,7 +82,7 @@ namespace SP360
     }
 
 
-    int makeConvertBorderImage(std::string src_file, unsigned char* dst_array,
+    int Converter::makeConvertBorderImage(std::string src_file, unsigned char* dst_array,
                                unsigned int dst_width, unsigned int dst_height,
                                unsigned int time,
                                double angle_start, double angle_end,
@@ -92,7 +90,7 @@ namespace SP360
                                int n_split,
                                int n_points_w, int n_points_h)
     {
-        makeImage(src_file, dst_array, dst_width, dst_height, time);
+        Converter::makeImage(src_file, dst_array, dst_width, dst_height, time);
         Mat dst_img(dst_height, dst_width, CV_8UC4, dst_array);
         Mat bd_img(n_points_h, n_points_w, CV_8U);
         for (int s = 0; s < n_split; s++) {
@@ -127,7 +125,7 @@ namespace SP360
     }
 
 
-    int makeConvertedImage(std::string src_file, unsigned char* dst_array,
+    int Converter::makeConvertedImage(std::string src_file, unsigned char* dst_array,
                            unsigned int dst_width, unsigned int dst_height,
                            unsigned int time,
                            double angle_start, double angle_end,
@@ -141,7 +139,7 @@ namespace SP360
     }
 
 
-    int convertMovie(std::string src_file, std::string dst_file,
+    int Converter::convertMovie(std::string src_file, std::string dst_file,
                      unsigned int dst_width, unsigned int dst_height,
                      unsigned int start_time, unsigned int end_time,
                      double angle_start, double angle_end,
