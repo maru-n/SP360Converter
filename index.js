@@ -106,11 +106,11 @@ function($scope, $q, $timeout, electron) {
         $timeout(function(){
             converter.makeOriginalPreviewImage(originalPreviewData.data, originalPreviewWidth, originalPreviewWheight, true);
             originalPreviewContext.putImageData(originalPreviewData, 0, 0);
-        },1);
+        },0);
         $timeout(function(){
             converter.makeConvertedPreviewImage(convertedPreviewData.data, convertedPreviewWidth, convertedPreviewHeight);
             convertedPreviewContext.putImageData(convertedPreviewData, 0, 0);
-        },1);
+        },0);
     }
 
     $scope.isConverting = function() {

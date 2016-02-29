@@ -5,7 +5,6 @@ using namespace v8;
 using namespace SP360;
 
 
-
 //Legacy
 void callNodeCallbackFunc(ConverterWrap* converterWrap) {
     Isolate * isolate = Isolate::GetCurrent();
@@ -104,7 +103,6 @@ void ConverterWrap::New(const FunctionCallbackInfo<Value>& args) {
 }
 
 void ConverterWrap::Open(const FunctionCallbackInfo<Value>& args) {
-    //Isolate* isolate = args.GetIsolate();
     ConverterWrap* obj = ObjectWrap::Unwrap<ConverterWrap>(args.Holder());
     Converter* converter = obj->converter;
 
