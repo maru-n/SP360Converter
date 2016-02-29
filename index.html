@@ -23,12 +23,12 @@
                                 </button>
                             </div>
                             <div>
-                                <label>開始 [msec]</label>
-                                <input type="number" min="0" ng-model="start_time">
-                            </div>
-                            <div>
-                                <label>終了 [msec]</label>
-                                <input type="number" min="0" ng-model="end_time">
+                                <label>時刻 [msec]</label>
+                                <input type="number" min="0" ng-disabled="all_time_check" ng-model="start_time">
+                                ~
+                                <input type="number" min="0" ng-disabled="all_time_check" ng-model="end_time">
+                                <label>全て</label>
+                                <input type="checkbox" ng-model="all_time_check" ng-change="changeAllTime()">
                             </div>
                             <div>
                                 <label>開始角度</label>

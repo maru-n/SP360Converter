@@ -44,8 +44,7 @@ void convertAfterFunc(uv_work_t *req, int status) {
     converterWrap->convertCallback.Reset();
     uv_close((uv_handle_t*) &converterWrap->convertAsync, NULL);
 }
-
-
+// end Legacy
 
 
 Persistent<Function> ConverterWrap::constructor;
@@ -60,18 +59,18 @@ ConverterWrap::~ConverterWrap() {}
 
 void ConverterWrap::Init(Local<Object> module) {
     Isolate* isolate = module->GetIsolate();
-
     // Prepare constructor template
     Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate, New);
     tpl->SetClassName(String::NewFromUtf8(isolate, "Converter"));
     tpl->InstanceTemplate()->SetInternalFieldCount(1);
-
     // Prototype
     NODE_SET_PROTOTYPE_METHOD(tpl, "open", Open);
     NODE_SET_PROTOTYPE_METHOD(tpl, "setup", Setup);
     NODE_SET_PROTOTYPE_METHOD(tpl, "makeOriginalPreviewImage", MakeOriginalPreviewImage);
     NODE_SET_PROTOTYPE_METHOD(tpl, "makeConvertedPreviewImage", MakeConvertedPreviewImage);
     NODE_SET_PROTOTYPE_METHOD(tpl, "convert", Convert);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "totalMsec", TotalMsec);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "isOpened", IsOpened);
 
     constructor.Reset(isolate, tpl->GetFunction());
     module->Set(String::NewFromUtf8(isolate, "exports"), tpl->GetFunction());
@@ -103,29 +102,25 @@ void ConverterWrap::New(const FunctionCallbackInfo<Value>& args) {
 }
 
 void ConverterWrap::Open(const FunctionCallbackInfo<Value>& args) {
-    ConverterWrap* obj = ObjectWrap::Unwrap<ConverterWrap>(args.Holder());
-    Converter* converter = obj->converter;
-
+    Converter* converter = ObjectWrap::Unwrap<ConverterWrap>(args.Holder())->converter;
     v8::String::Utf8Value src_file_utf(args[0]->ToString());
     std::string src_file = std::string(*src_file_utf);
     converter->open(src_file);
-
     args.GetReturnValue().Set(args.This());
 }
 
 void ConverterWrap::Setup(const v8::FunctionCallbackInfo<v8::Value>& args) {
     Isolate* isolate = args.GetIsolate();
-    ConverterWrap* obj = ObjectWrap::Unwrap<ConverterWrap>(args.Holder());
-    Converter* converter = obj->converter;
+    Converter* converter = ObjectWrap::Unwrap<ConverterWrap>(args.Holder())->converter;
 
     Handle<Object> data = Handle<Object>::Cast(args[0]);
 
-    if (data->Get(String::NewFromUtf8(isolate,"start_time"))->IsNumber())
-        converter->start_time = data->Get(String::NewFromUtf8(isolate,"start_time"))->NumberValue();
-    if (data->Get(String::NewFromUtf8(isolate,"end_time"))->IsNumber())
-        converter->end_time = data->Get(String::NewFromUtf8(isolate,"end_time"))->NumberValue();
-    if (data->Get(String::NewFromUtf8(isolate,"preview_time"))->IsNumber())
-        converter->preview_time = data->Get(String::NewFromUtf8(isolate,"preview_time"))->NumberValue();
+    if (data->Get(String::NewFromUtf8(isolate,"start_time_msec"))->IsNumber())
+        converter->startTimeMsec( data->Get(String::NewFromUtf8(isolate,"start_time_msec"))->NumberValue() );
+    if (data->Get(String::NewFromUtf8(isolate,"end_time_msec"))->IsNumber())
+        converter->endTimeMsec( data->Get(String::NewFromUtf8(isolate,"end_time_msec"))->NumberValue() );
+    // if (data->Get(String::NewFromUtf8(isolate,"preview_time"))->IsNumber())
+    //    converter->preview_time = data->Get(String::NewFromUtf8(isolate,"preview_time"))->NumberValue();
     if (data->Get(String::NewFromUtf8(isolate,"dst_width"))->IsNumber())
         converter->dst_width = data->Get(String::NewFromUtf8(isolate,"dst_width"))->NumberValue();
     if (data->Get(String::NewFromUtf8(isolate,"dst_height"))->IsNumber())
@@ -145,8 +140,7 @@ void ConverterWrap::Setup(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
 void ConverterWrap::MakeOriginalPreviewImage(const v8::FunctionCallbackInfo<v8::Value>& args) {
     Isolate* isolate = args.GetIsolate();
-    ConverterWrap* obj = ObjectWrap::Unwrap<ConverterWrap>(args.Holder());
-    Converter* converter = obj->converter;
+    Converter* converter = ObjectWrap::Unwrap<ConverterWrap>(args.Holder())->converter;
     if (!args[1]->IsNumber() || !args[2]->IsNumber()) {
         isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "Wrong arguments")));
         return;
@@ -156,15 +150,13 @@ void ConverterWrap::MakeOriginalPreviewImage(const v8::FunctionCallbackInfo<v8::
     int width = args[1]->NumberValue();
     int height = args[2]->NumberValue();
     bool border = args[3]->BooleanValue();
-    converter->preview_time = 0;
     converter->makeOriginalPreviewImage(dst_img_ptr, width, height, border);
     args.GetReturnValue().Set(Undefined(isolate));
 }
 
 void ConverterWrap::MakeConvertedPreviewImage(const v8::FunctionCallbackInfo<v8::Value>& args) {
     Isolate* isolate = args.GetIsolate();
-    ConverterWrap* obj = ObjectWrap::Unwrap<ConverterWrap>(args.Holder());
-    Converter* converter = obj->converter;
+    Converter* converter = ObjectWrap::Unwrap<ConverterWrap>(args.Holder())->converter;
     if (!args[1]->IsNumber() || !args[2]->IsNumber()) {
         isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, "Wrong arguments")));
         return;
@@ -173,7 +165,6 @@ void ConverterWrap::MakeConvertedPreviewImage(const v8::FunctionCallbackInfo<v8:
     unsigned char* dst_img_ptr = (unsigned char*)array->Buffer()->GetContents().Data();
     int width = args[1]->NumberValue();
     int height = args[2]->NumberValue();
-    converter->preview_time = 0;
     converter->makeConvertedPreviewImage(dst_img_ptr, width, height);
     args.GetReturnValue().Set(Undefined(isolate));
 }
@@ -181,18 +172,29 @@ void ConverterWrap::MakeConvertedPreviewImage(const v8::FunctionCallbackInfo<v8:
 void ConverterWrap::Convert(const v8::FunctionCallbackInfo<v8::Value>& args) {
     Isolate* isolate = args.GetIsolate();
     ConverterWrap* obj = ObjectWrap::Unwrap<ConverterWrap>(args.Holder());
-
     // filename
     v8::String::Utf8Value dst_file_utf(args[0]);
     obj->convertDstFile = std::string(*dst_file_utf);
-
     // callback function
     Local<Function> callback = Local<Function>::Cast(args[1]);
     obj->convertCallback.Reset(isolate, callback);
-
     // invoke async function and callback
     uv_async_init(uv_default_loop(), &obj->convertAsync, convertProgressFunc);
     uv_queue_work(uv_default_loop(), &obj->convertRequest, convertAsyncFunc, convertAfterFunc);
 
     args.GetReturnValue().Set(Undefined(isolate));
+}
+
+void ConverterWrap::TotalMsec(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    Isolate* isolate = args.GetIsolate();
+    Converter* converter = ObjectWrap::Unwrap<ConverterWrap>(args.Holder())->converter;
+    double totalMsec = converter->totalMsec();
+    args.GetReturnValue().Set(Number::New(isolate, totalMsec));
+}
+
+void ConverterWrap::IsOpened(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    Isolate* isolate = args.GetIsolate();
+    Converter* converter = ObjectWrap::Unwrap<ConverterWrap>(args.Holder())->converter;
+    bool isOpened = converter->isOpened();
+    args.GetReturnValue().Set(Boolean::New(isolate, isOpened));
 }

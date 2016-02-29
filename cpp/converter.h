@@ -9,8 +9,6 @@ namespace SP360
 {
     class Converter {
     public:
-        unsigned int start_time;
-        unsigned int end_time;
         unsigned int dst_width;
         unsigned int dst_height;
         double angle_start;
@@ -21,23 +19,33 @@ namespace SP360
 
         int n_points_w;
         int n_points_h;
-        unsigned int preview_time;
+
 
         Converter();
+        ~Converter();
         int open(std::string src_file);
         int makeOriginalPreviewImage(unsigned char* dst_array, int width, int height, bool border);
         int makeConvertedPreviewImage(unsigned char* dst_array, int width, int height);
         int convert(std::string filename, std::function<void(float)> progress_callback);
 
-        int width(){ return _width;};
-        int height(){ return _height;};
+        int width() { return _width;};
+        int height() { return _height;};
+        double startTimeMsec() { return _start_time_msec; };
+        void startTimeMsec(double ms){ this->_start_time_msec = ms; };
+        double endTimeMsec() { return _end_time_msec; };
+        void endTimeMsec(double ms){ this->_end_time_msec = ms; };
+        bool isOpened(){ return videoCapture.isOpened();}
+        double totalMsec();
+        double totalFrame();
+        double fps();
+
 
     private:
-        cv::VideoCapture videoCapture;
-        cv::Mat previewImage;
-
         void convertImage(cv::Mat src_img, cv::Mat dst_img);
 
+        cv::VideoCapture videoCapture;
+        cv::Mat previewImage;
+        double _start_time_msec, _end_time_msec, _preview_time_msec;
         int _width, _height;
     };
 

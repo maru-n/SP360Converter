@@ -48,6 +48,7 @@ function($scope, $q, $timeout, electron) {
     $scope.dst_file     = "";
     $scope.start_time   = 0;
     $scope.end_time     = 1000;
+    $scope.all_time_check = false;
     $scope.preview_time = 0;
     $scope.dst_width    = 1280;
     $scope.dst_height   = 720;
@@ -87,20 +88,29 @@ function($scope, $q, $timeout, electron) {
 
     var updateConverter = function() {
         converter.setup({
-            start_time:  $scope.start_time,
-            end_time:    $scope.end_time,
-            preview_time:$scope.preview_time,
-            dst_width:   $scope.resolution.width,
-            dst_height:  $scope.resolution.height,
-            radius_in:   $scope.radius_in,
-            radius_out:  $scope.radius_out,
-            angle_start: $scope.angle_start * 2.0 * Math.PI / 360.0,
-            angle_end:   ($scope.angle_start + $scope.angle) * 2.0 * Math.PI / 360.0,
-            n_split:     $scope.n_split,
+            start_time_msec:   $scope.start_time,
+            end_time_msec:     $scope.end_time,
+            preview_time_msec: $scope.preview_time,
+            dst_width:         $scope.resolution.width,
+            dst_height:        $scope.resolution.height,
+            radius_in:         $scope.radius_in,
+            radius_out:        $scope.radius_out,
+            angle_start:       $scope.angle_start * 2.0 * Math.PI / 360.0,
+            angle_end:        ($scope.angle_start + $scope.angle) * 2.0 * Math.PI / 360.0,
+            n_split:           $scope.n_split,
         });
     }
 
+    $scope.changeAllTime = function() {
+        if ($scope.all_time_check && converter.isOpened()) {
+            console.log(converter.totalMsec());
+            $scope.start_time = 0;
+            $scope.end_time = Math.ceil(converter.totalMsec());
+        }
+    }
+
     $scope.updatePreview = function() {
+        if (!converter.isOpened()) { return }
         updateConverter();
         $timeout(function(){
             var originalPreviewData = originalPreviewContext.createImageData(originalPreviewWidth, originalPreviewWheight);
@@ -145,7 +155,7 @@ function($scope, $q, $timeout, electron) {
         deferred.promise.then(function(filenames){
             $scope.src_file = filenames[0];
             converter.open(filenames[0]);
-            updateConverter();
+            $scope.changeAllTime();
             $scope.updatePreview();
         });
     };

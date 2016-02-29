@@ -14,26 +14,31 @@ namespace SP360
     {
         this->n_points_w = 1024;
         this->n_points_h = 225;
-        this->preview_time = 0;
+        this->_preview_time_msec = 0;
     }
+
+    Converter::~Converter() {}
 
     int Converter::open(std::string src_file)
     {
         videoCapture.open(src_file.c_str());
-        videoCapture.set(CAP_PROP_POS_MSEC, preview_time);
+        this->_width = videoCapture.get(CAP_PROP_FRAME_WIDTH);
+        this->_height = videoCapture.get(CAP_PROP_FRAME_HEIGHT);
+
+        videoCapture.set(CAP_PROP_POS_MSEC, _preview_time_msec);
         Mat tmp_img;
         videoCapture >> tmp_img;
         if( tmp_img.empty() ) {
             return 1;
         }
         cvtColor(tmp_img, previewImage, CV_BGR2RGBA );
-        this->_width = previewImage.cols;
-        this->_height = previewImage.rows;
         return 0;
     }
 
     int Converter::makeOriginalPreviewImage(unsigned char* dst_array, int width, int height, bool border)
     {
+        if (!this->isOpened()) { return -1; }
+
         Mat dst_img(height, width, CV_8UC4, dst_array);
         resize(previewImage, dst_img, dst_img.size());
 
@@ -74,6 +79,7 @@ namespace SP360
 
     int Converter::makeConvertedPreviewImage(unsigned char* dst_array, int width, int height)
     {
+        if (!this->isOpened()) { return -1; }
         Mat dst_img(height, width, CV_8UC4, dst_array);
         convertImage(previewImage, dst_img);
         return 0;
@@ -81,15 +87,15 @@ namespace SP360
 
     int Converter::convert(std::string filename, std::function<void(float)> progress_callback)
     {
-        double fps = videoCapture.get(CAP_PROP_FPS);
+        if (!this->isOpened()) { return -1; }
         int fourcc = VideoWriter::fourcc('a','v','c','1');
-        VideoWriter writer(filename.c_str(), fourcc, fps, Size(dst_width, dst_height));
+        VideoWriter writer(filename.c_str(), fourcc, this->fps(), Size(dst_width, dst_height));
 
-        videoCapture.set(CAP_PROP_POS_MSEC, start_time);
+        videoCapture.set(CAP_PROP_POS_MSEC, _start_time_msec);
         Mat frame;
         while (1) {
-            double current_pos = videoCapture.get(CV_CAP_PROP_POS_MSEC);
-            if (current_pos > end_time) {
+            double current_time_msec = videoCapture.get(CAP_PROP_POS_MSEC);
+            if (current_time_msec > _end_time_msec) {
                 break;
             }
             videoCapture >> frame;
@@ -98,7 +104,7 @@ namespace SP360
             Mat new_frame = Mat(dst_height, dst_width, frame.type());
             convertImage(frame, new_frame);
             writer << new_frame;
-            float progress = (current_pos - start_time) / (end_time - start_time);
+            float progress = (current_time_msec - _start_time_msec) / (_end_time_msec - _start_time_msec);
             progress_callback(progress);
         }
         return 0;
@@ -121,6 +127,21 @@ namespace SP360
                 }
             }
         }
+    }
+
+    double Converter::totalMsec()
+    {
+        return 1000.0 * this->totalFrame() / this->fps();
+    }
+
+    double Converter::totalFrame()
+    {
+        return videoCapture.get(CAP_PROP_FRAME_COUNT);
+    }
+
+    double Converter::fps()
+    {
+        return videoCapture.get(CAP_PROP_FPS);
     }
 
     // TODO: Legacy function
