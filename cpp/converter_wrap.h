@@ -23,14 +23,15 @@ class ConverterWrap : public node::ObjectWrap {
     private:
         explicit ConverterWrap();
         ~ConverterWrap();
-
+        static v8::Persistent<v8::Function> constructor;
         static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
         static void Open(const v8::FunctionCallbackInfo<v8::Value>& args);
         static void Setup(const v8::FunctionCallbackInfo<v8::Value>& args);
         static void MakeOriginalPreviewImage(const v8::FunctionCallbackInfo<v8::Value>& args);
         static void MakeConvertedPreviewImage(const v8::FunctionCallbackInfo<v8::Value>& args);
         static void Convert(const v8::FunctionCallbackInfo<v8::Value>& args);
-        static v8::Persistent<v8::Function> constructor;
+        static void TotalMsec(const v8::FunctionCallbackInfo<v8::Value>& args);
+        static void IsOpened(const v8::FunctionCallbackInfo<v8::Value>& args);
     };
 
 #endif
