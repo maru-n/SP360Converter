@@ -58,33 +58,32 @@ function($scope, $q, $timeout, electron) {
     $scope.n_split_choices = [1, 2];
     $scope.n_split     = $scope.n_split_choices[0];
     $scope.resolutions = [
-        {name:'VGA          640x480 ', width:640, height:480, aspect:"4:3" },
-        {name:'SVGA         800x600 ', width:800, height:600, aspect:"4:3" },
-        {name:'HD+         1600x900 ', width:1600, height:900, aspect:"16:9" },
-        {name:'HD (720p)   1280x720 ', width:1280, height:720, aspect:"16:9" },
-        {name:'FHD (1080p) 1920x1080', width:1920, height:1080, aspect:"16:9" },
-        {name:'パノラマ     1200x400 ', width:1200, height:400, aspect:"3:1" },
+        {name:'VGA          640x480 ', width:640, height:480, aspect:4/3 },
+        {name:'SVGA         800x600 ', width:800, height:600, aspect:4/3 },
+        {name:'HD+         1600x900 ', width:1600, height:900, aspect:16/9 },
+        {name:'HD (720p)   1280x720 ', width:1280, height:720, aspect:16/9 },
+        {name:'FHD (1080p) 1920x1080', width:1920, height:1080, aspect:16/9 },
+        {name:'パノラマ     1200x400 ', width:1200, height:400, aspect:3/1 },
     ];
     $scope.resolution = $scope.resolutions[0];
 
     $scope.convert_progress = 0.0;
 
 
-    var originalPreviewWidth = 200;
-    var originalPreviewWheight = 200;
+    var originalPreviewWidth = 225;
+    var originalPreviewWheight = 225;
     var originalPreviewCanvas = document.getElementById('original-preview-canvas');
     originalPreviewCanvas.width = originalPreviewWidth;
     originalPreviewCanvas.height = originalPreviewWheight;
     var originalPreviewContext = originalPreviewCanvas.getContext('2d');
-    var originalPreviewData = originalPreviewContext.createImageData(originalPreviewWidth, originalPreviewWheight);
 
     var convertedPreviewWidth = 400;
     var convertedPreviewHeight = 225;
+    var convertedPreviewAspect = convertedPreviewWidth/convertedPreviewHeight;
     var convertedPreviewCanvas = document.getElementById('converted-preview-canvas');
     convertedPreviewCanvas.width = convertedPreviewWidth;
     convertedPreviewCanvas.height = convertedPreviewHeight;
     var convertedPreviewContext = convertedPreviewCanvas.getContext('2d');
-    var convertedPreviewData = convertedPreviewContext.createImageData(convertedPreviewWidth, convertedPreviewHeight);
 
     var updateConverter = function() {
         converter.setup({
@@ -104,12 +103,27 @@ function($scope, $q, $timeout, electron) {
     $scope.updatePreview = function() {
         updateConverter();
         $timeout(function(){
+            var originalPreviewData = originalPreviewContext.createImageData(originalPreviewWidth, originalPreviewWheight);
             converter.makeOriginalPreviewImage(originalPreviewData.data, originalPreviewWidth, originalPreviewWheight, true);
             originalPreviewContext.putImageData(originalPreviewData, 0, 0);
         },0);
         $timeout(function(){
-            converter.makeConvertedPreviewImage(convertedPreviewData.data, convertedPreviewWidth, convertedPreviewHeight);
-            convertedPreviewContext.putImageData(convertedPreviewData, 0, 0);
+            if ($scope.resolution.aspect < convertedPreviewAspect) {
+                var h = convertedPreviewHeight;
+                var w = h * $scope.resolution.aspect;
+                var dx = (convertedPreviewWidth - w) / 2;
+                var dy = 0;
+            } else {
+                var w = convertedPreviewWidth;
+                var h = w / $scope.resolution.aspect;
+                var dx = 0;
+                var dy = (convertedPreviewHeight - h) / 2;
+            }
+            var convertedPreviewData = convertedPreviewContext.createImageData(w, h);
+            converter.makeConvertedPreviewImage(convertedPreviewData.data, w, h);
+            convertedPreviewContext.fillStyle = "rgb(0, 0, 0)";
+            convertedPreviewContext.fillRect(0, 0, convertedPreviewWidth, convertedPreviewHeight);
+            convertedPreviewContext.putImageData(convertedPreviewData, dx, dy);
         },0);
     }
 

@@ -59,7 +59,7 @@
                             </div>
                             <div>
                                 <label>解像度
-                                    <select ng-model="resolution" ng-options="r.name for r in resolutions"></select>
+                                    <select ng-model="resolution" ng-options="r.name for r in resolutions" ng-change="updatePreview()"></select>
                                 </label>
                             </div>
                         </div>

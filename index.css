@@ -45,11 +45,11 @@ canvas {
 }
 
 #original-preview {
-    width: 225px;
-    height: 225px;
+    width: 231px;
+    height: 231px;
 }
 
 #converted-preview {
-    width: 400px;
-    height: 225px;
+    width: 406px;
+    height: 231px;
 }
