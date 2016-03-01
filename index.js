@@ -101,12 +101,18 @@ function($scope, $q, $timeout, electron) {
         });
     }
 
+    $scope.time_unit = "msec";
+
     $scope.changeAllTime = function() {
         if ($scope.all_time_check && converter.isOpened()) {
             console.log(converter.totalMsec());
             $scope.start_time = 0;
             $scope.end_time = Math.ceil(converter.totalMsec());
         }
+    }
+
+    $scope.changeTiemUnit = function() {
+        console.log($scope.time_unit);
     }
 
     $scope.updatePreview = function() {

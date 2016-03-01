@@ -23,7 +23,9 @@
                                 </button>
                             </div>
                             <div>
-                                <label>時刻 [msec]</label>
+                                <label>時刻</label>
+                                <input type="radio" ng-model="time_unit" value="msec" ng-change="changeTiemUnit()">msec
+                                <input type="radio" ng-model="time_unit" value="frame" ng-change="changeTiemUnit()">frame
                                 <input type="number" min="0" ng-disabled="all_time_check" ng-model="start_time">
                                 ~
                                 <input type="number" min="0" ng-disabled="all_time_check" ng-model="end_time">
