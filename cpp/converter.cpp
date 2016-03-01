@@ -129,21 +129,6 @@ namespace SP360
         }
     }
 
-    double Converter::totalMsec()
-    {
-        return 1000.0 * this->totalFrame() / this->fps();
-    }
-
-    double Converter::totalFrame()
-    {
-        return videoCapture.get(CAP_PROP_FRAME_COUNT);
-    }
-
-    double Converter::fps()
-    {
-        return videoCapture.get(CAP_PROP_FPS);
-    }
-
     // TODO: Legacy function
     Point calcOriginalPoint(Point converted_pos,
                             MatSize original_size, MatSize converted_size,

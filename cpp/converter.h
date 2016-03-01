@@ -30,15 +30,17 @@ namespace SP360
 
         int width() { return _width;};
         int height() { return _height;};
+
         double startTimeMsec() { return _start_time_msec; };
         void startTimeMsec(double ms){ this->_start_time_msec = ms; };
         double endTimeMsec() { return _end_time_msec; };
         void endTimeMsec(double ms){ this->_end_time_msec = ms; };
-        bool isOpened(){ return videoCapture.isOpened();}
-        double totalMsec();
-        double totalFrame();
-        double fps();
 
+        bool isOpened(){ return videoCapture.isOpened();}
+
+        double totalMsec(){return 1000.0 * this->totalFrame() / this->fps();};
+        double totalFrame(){return videoCapture.get(cv::CAP_PROP_FRAME_COUNT);};
+        double fps(){return videoCapture.get(cv::CAP_PROP_FPS);};
 
     private:
         void convertImage(cv::Mat src_img, cv::Mat dst_img);
