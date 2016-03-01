@@ -65,7 +65,7 @@ namespace SP360
                 double split_angle_end = split_angle_start + (angle_end - angle_start) / n_split;
                 Point point = calcOriginalPoint(Point(i, j), dst_img.size, bd_img.size,
                                 split_angle_start, split_angle_end,
-                                radius_in, radius_out,
+                                radius_start, radius_end,
                                 1);
                 int idx = point.x + point.y*dst_img.size[1];
                 dst_img.data[idx*4+0] = 255;
@@ -118,7 +118,7 @@ namespace SP360
                 Point dst_point = Point(i, j);
                 Point src_point = calcOriginalPoint(dst_point, src_img.size, dst_img.size,
                                     angle_start, angle_end,
-                                    radius_in, radius_out,
+                                    radius_start, radius_end,
                                     n_split);
                 for (int c = 0; c < channels; c++) {
                     int dst_idx = channels * (dst_point.x + dst_point.y * dst_img.cols) + c;
@@ -133,7 +133,7 @@ namespace SP360
     Point calcOriginalPoint(Point converted_pos,
                             MatSize original_size, MatSize converted_size,
                             double angle_start, double angle_end,
-                            double radius_in, double radius_out,
+                            double radius_start, double radius_end,
                             int n_split)
     {
         double R = original_size[0] / 2.0;
@@ -144,7 +144,7 @@ namespace SP360
         int split_row = converted_pos.y * n_split / h;
         double pan_i = converted_pos.x + w * split_row;
         double pan_j = converted_pos.y - h * split_row / n_split;
-        double r = R * (radius_in + (radius_out - radius_in) * pan_j / pan_h);
+        double r = R * (radius_start + (radius_end - radius_start) * pan_j / pan_h);
         double th = angle_start + (angle_end - angle_start) * pan_i / pan_w;
         int src_i = R + r * cos(th);
         int src_j = R - r * sin(th);

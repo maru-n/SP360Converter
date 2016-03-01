@@ -129,10 +129,10 @@ void ConverterWrap::Setup(const v8::FunctionCallbackInfo<v8::Value>& args) {
         converter->angle_start = data->Get(String::NewFromUtf8(isolate,"angle_start"))->NumberValue();
     if (data->Get(String::NewFromUtf8(isolate,"angle_end"))->IsNumber())
         converter->angle_end = data->Get(String::NewFromUtf8(isolate,"angle_end"))->NumberValue();
-    if (data->Get(String::NewFromUtf8(isolate,"radius_in"))->IsNumber())
-        converter->radius_in = data->Get(String::NewFromUtf8(isolate,"radius_in"))->NumberValue();
-    if (data->Get(String::NewFromUtf8(isolate,"radius_out"))->IsNumber())
-        converter->radius_out = data->Get(String::NewFromUtf8(isolate,"radius_out"))->NumberValue();
+    if (data->Get(String::NewFromUtf8(isolate,"radius_start"))->IsNumber())
+        converter->radius_start = data->Get(String::NewFromUtf8(isolate,"radius_start"))->NumberValue();
+    if (data->Get(String::NewFromUtf8(isolate,"radius_end"))->IsNumber())
+        converter->radius_end = data->Get(String::NewFromUtf8(isolate,"radius_end"))->NumberValue();
     if (data->Get(String::NewFromUtf8(isolate,"n_split"))->IsNumber())
         converter->n_split  = data->Get(String::NewFromUtf8(isolate,"n_split"))->NumberValue();
     args.GetReturnValue().Set(args.This());

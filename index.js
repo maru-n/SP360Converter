@@ -54,8 +54,8 @@ function($scope, $q, $timeout, electron) {
     $scope.dst_height   = 720;
     $scope.angle_start  = 0;
     $scope.angle        = 360;
-    $scope.radius_in    = 0.0;
-    $scope.radius_out   = 1.0
+    $scope.radius_start = 0.0;
+    $scope.radius_end   = 1.0
     $scope.n_split_choices = [1, 2];
     $scope.n_split     = $scope.n_split_choices[0];
     $scope.resolutions = [
@@ -93,8 +93,8 @@ function($scope, $q, $timeout, electron) {
             preview_time_msec: $scope.preview_time,
             dst_width:         $scope.resolution.width,
             dst_height:        $scope.resolution.height,
-            radius_in:         $scope.radius_in,
-            radius_out:        $scope.radius_out,
+            radius_start:      $scope.radius_start,
+            radius_end:        $scope.radius_end,
             angle_start:       $scope.angle_start * 2.0 * Math.PI / 360.0,
             angle_end:        ($scope.angle_start + $scope.angle) * 2.0 * Math.PI / 360.0,
             n_split:           $scope.n_split,

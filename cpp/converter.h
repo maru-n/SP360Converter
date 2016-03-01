@@ -13,8 +13,8 @@ namespace SP360
         unsigned int dst_height;
         double angle_start;
         double angle_end;
-        double radius_in;
-        double radius_out;
+        double radius_start;
+        double radius_end;
         int n_split;
 
         int n_points_w;
