@@ -151,7 +151,7 @@ function($scope, $q, $timeout, electron) {
         var deferred = $q.defer()
         var options = {
             filters: [
-                { name: 'Movies', extensions: ['mp4'] },
+                { name: 'Movies', extensions: ['mp4','mov'] },
             ]};
         Dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), options, function(filenames){
             if (filenames) {

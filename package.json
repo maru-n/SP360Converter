@@ -6,10 +6,10 @@
     "scripts": {
         "start": "electron .",
         "test": "echo \"Error: no test specified\" && exit 1",
-        "module:build": "cd cpp; node-gyp build",
-        "module:rebuild": "cd cpp; node-gyp rebuild",
-        "module:clean": "cd cpp; node-gyp clean",        
-        "module:configure": "cd cpp; node-gyp configure",
+        "module:build": "cd module; node-gyp build",
+        "module:rebuild": "cd module; node-gyp rebuild",
+        "module:clean": "cd module; node-gyp clean",
+        "module:configure": "cd module; node-gyp configure",
         "postinstall": "install-app-deps",
         "pack": "build",
         "dist": "build"
