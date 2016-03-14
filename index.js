@@ -1,8 +1,8 @@
 'use strict';
 
 var remote = require('remote');
-//var Converter = remote.require('./cpp/build/Release/converter');
-var Converter = require('./cpp/build/Release/converter');
+//var Converter = remote.require('./module/build/Release/converter');
+var Converter = require('./module/build/Release/converter');
 var Package = require('./package.json');
 
 var Menu = remote.require('menu');

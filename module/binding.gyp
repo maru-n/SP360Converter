@@ -9,21 +9,49 @@
         "cflags": [
             "-Wall"
             "-std=c++11",
-            "-stdlib=libc++"
+            "-stdlib=libc++",
+            "--static"
         ],
         'xcode_settings': {
-            'MACOSX_DEPLOYMENT_TARGET': '10.7',
+            'MACOSX_DEPLOYMENT_TARGET': '10.11',
             'OTHER_CFLAGS': [
                 '-std=c++11',
-                '-stdlib=libc++'
+                '-stdlib=libc++',
+                '--static'
             ]
         },
-        "link_settings": {
-            "libraries": [
-                "-framework opencv2",
-                "-framework QTKit",
-                #"-framework AVKit",
-            ],
-        },
-     }]
+         "libraries": [
+            "-F/Users/maruyama/Desktop/SP360Converter/SP360Converter/module/lib",
+            "-L/Users/maruyama/Desktop/SP360Converter/SP360Converter/module/lib",
+            "-framework opencv2",
+            "-framework Foundation",
+            "-framework QuartzCore",
+            "-framework CoreVideo",
+            "-framework AVFoundation",
+            "-framework CoreMedia",
+            "-framework CoreFoundation",
+            "-framework VideoToolbox",
+            "-framework VideoDecodeAcceleration",
+            "-framework Security",
+            "-framework OpenCL",
+            "-framework CoreGraphics",
+            "-framework CoreServices",
+            "-lavcodec",
+            #"-lavdevice",
+            #"-lavfilter",
+            "-lavformat",
+            #"-lavresample",
+            "-lavutil",
+            "-lpostproc",
+            #"-lswresample",
+            "-lswscale",
+            "-lx264",
+            "-lmp3lame",
+            "-liconv",
+            "-lSystem",
+            "-lbz2",
+            "-lz",
+            "-lxvidcore",
+        ],
+    }]
 }

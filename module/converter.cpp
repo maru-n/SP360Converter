@@ -21,7 +21,7 @@ namespace SP360
 
     int Converter::open(std::string src_file)
     {
-        videoCapture.open(src_file.c_str());
+        videoCapture.open(src_file);
         this->_width = videoCapture.get(CAP_PROP_FRAME_WIDTH);
         this->_height = videoCapture.get(CAP_PROP_FRAME_HEIGHT);
 
@@ -88,8 +88,8 @@ namespace SP360
     int Converter::convert(std::string filename, std::function<void(float)> progress_callback)
     {
         if (!this->isOpened()) { return -1; }
-        int fourcc = VideoWriter::fourcc('a','v','c','1');
-        VideoWriter writer(filename.c_str(), fourcc, this->fps(), Size(dst_width, dst_height));
+        int fourcc = static_cast<int>(videoCapture.get(CV_CAP_PROP_FOURCC));
+        VideoWriter writer(filename, fourcc, this->fps(), Size(dst_width, dst_height));
 
         videoCapture.set(CAP_PROP_POS_MSEC, _start_time_msec);
         Mat frame;

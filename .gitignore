@@ -29,3 +29,5 @@ bower_components
 .python-version
 cpp/build
 dist
+module/build
+module/lib
