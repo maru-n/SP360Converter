@@ -126,9 +126,9 @@ void ConverterWrap::Setup(const v8::FunctionCallbackInfo<v8::Value>& args) {
     if (data->Get(String::NewFromUtf8(isolate,"dst_height"))->IsNumber())
         converter->dst_height = data->Get(String::NewFromUtf8(isolate,"dst_height"))->NumberValue();
     if (data->Get(String::NewFromUtf8(isolate,"angle_start"))->IsNumber())
-        converter->angle_start = data->Get(String::NewFromUtf8(isolate,"angle_start"))->NumberValue();
+        converter->angleStart( data->Get(String::NewFromUtf8(isolate,"angle_start"))->NumberValue() );
     if (data->Get(String::NewFromUtf8(isolate,"angle_end"))->IsNumber())
-        converter->angle_end = data->Get(String::NewFromUtf8(isolate,"angle_end"))->NumberValue();
+        converter->angleEnd( data->Get(String::NewFromUtf8(isolate,"angle_end"))->NumberValue() );
     if (data->Get(String::NewFromUtf8(isolate,"radius_start"))->IsNumber())
         converter->radius_start = data->Get(String::NewFromUtf8(isolate,"radius_start"))->NumberValue();
     if (data->Get(String::NewFromUtf8(isolate,"radius_end"))->IsNumber())

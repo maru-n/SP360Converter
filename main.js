@@ -11,7 +11,18 @@ app.on('window-all-closed', function() {
         app.quit();
     }
 });
+
+app.on('activate', function() {
+    if (mainWindow == null) {
+        openWindow();
+    }
+});
+
 app.on('ready', function() {
+    openWindow();
+});
+
+function openWindow() {
     mainWindow = new BrowserWindow({
         'width': 800,
         'height': 650,
@@ -24,6 +35,6 @@ app.on('ready', function() {
     mainWindow.on('closed', function() {
         mainWindow = null;
     });
-});
+};
 
 app.commandLine.appendSwitch("--enable-experimental-web-platform-features");

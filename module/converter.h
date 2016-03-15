@@ -11,8 +11,6 @@ namespace SP360
     public:
         unsigned int dst_width;
         unsigned int dst_height;
-        double angle_start;
-        double angle_end;
         double radius_start;
         double radius_end;
         int n_split;
@@ -32,9 +30,17 @@ namespace SP360
         int height() { return _height;};
 
         double startTimeMsec() { return _start_time_msec; };
-        void startTimeMsec(double ms){ this->_start_time_msec = ms; };
+        void   startTimeMsec(double ms){ this->_start_time_msec = ms; };
+        int    startFrame() { return int(_start_time_msec * this->fps() / 1000.0);}
+        void   startFrame(int fn){ this->_start_time_msec = 1000.0 * fn / this->fps(); };
         double endTimeMsec() { return _end_time_msec; };
-        void endTimeMsec(double ms){ this->_end_time_msec = ms; };
+        void   endTimeMsec(double ms){ this->_end_time_msec = ms; };
+        int    endFrame() { return int(_end_time_msec * this->fps() / 1000.0);}
+        void   endFrame(int fn){ this->_end_time_msec = 1000.0 * fn / this->fps(); };
+        void   angleStart(double th){ this->_angle_start = th;};
+        double angleStart() { return this->_angle_start; };
+        void   angleEnd(double th){ this->_angle_end = th;};
+        double angleEnd() { return this->_angle_end; };
 
         bool isOpened(){ return videoCapture.isOpened();}
 
@@ -49,6 +55,7 @@ namespace SP360
         cv::Mat previewImage;
         double _start_time_msec, _end_time_msec, _preview_time_msec;
         int _width, _height;
+        double _angle_start, _angle_end;
     };
 
     // TODO: Legacy function

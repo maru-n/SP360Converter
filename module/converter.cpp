@@ -61,8 +61,8 @@ namespace SP360
                     i = 0;
                     j = n - bd_img.size[0] - bd_img.size[1]*2 + 3;
                 }
-                double split_angle_start = angle_start + (angle_end - angle_start) * s / n_split;
-                double split_angle_end = split_angle_start + (angle_end - angle_start) / n_split;
+                double split_angle_start = _angle_start + (_angle_end - _angle_start) * s / n_split;
+                double split_angle_end = split_angle_start + (_angle_end - _angle_start) / n_split;
                 Point point = calcOriginalPoint(Point(i, j), dst_img.size, bd_img.size,
                                 split_angle_start, split_angle_end,
                                 radius_start, radius_end,
@@ -117,7 +117,7 @@ namespace SP360
             for (int i = 0; i < dst_img.cols; i++) {
                 Point dst_point = Point(i, j);
                 Point src_point = calcOriginalPoint(dst_point, src_img.size, dst_img.size,
-                                    angle_start, angle_end,
+                                    _angle_start, _angle_end,
                                     radius_start, radius_end,
                                     n_split);
                 for (int c = 0; c < channels; c++) {
