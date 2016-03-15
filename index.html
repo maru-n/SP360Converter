@@ -23,12 +23,18 @@
                                 </button>
                             </div>
                             <div>
-                                <label>時刻 [msec]</label>
-                                <input type="number" min="0" ng-disabled="all_time_check" ng-model="start_time">
+                                <input type="number" min="0" ng-disabled="is_all_frame" ng-model="start_frame">
                                 ~
-                                <input type="number" min="0" ng-disabled="all_time_check" ng-model="end_time">
-                                <label>全て</label>
-                                <input type="checkbox" ng-model="all_time_check" ng-change="changeAllTime()">
+                                <input type="number" min="0" ng-disabled="is_all_frame" ng-model="end_frame">
+                                フレーム
+                                <br>
+                                <input type="number" min="0" ng-disabled="is_all_frame" ng-model="start_frame" frame2sec>
+                                ~
+                                <input type="number" min="0" ng-disabled="is_all_frame" ng-model="end_frame" frame2sec>
+                                秒
+                                <br>
+                                全て
+                                <input type="checkbox" ng-model="is_all_frame" ng-change="changeAllTime()">
                             </div>
                             <div>
                                 <label>開始角度</label>
@@ -42,13 +48,13 @@
                             </div>
                             <div>
                                 <label>内半径</label>
-                                <input type="range"  step="0.01" min="0" max="1" ng-model="radius_in" ng-change="updatePreview()" number-input>
-                                <input type="number" step="0.01" min="0" max="1" ng-model="radius_in" ng-change="updatePreview()">
+                                <input type="range"  step="0.01" min="0" max="1" ng-model="radius_start" ng-change="updatePreview()" number-input>
+                                <input type="number" step="0.01" min="0" max="1" ng-model="radius_start" ng-change="updatePreview()">
                             </div>
                             <div>
                                 <label>外半径</label>
-                                <input type="range"  step="0.01" min="0" max="1" ng-model="radius_out" ng-change="updatePreview()" number-input >
-                                <input type="number" step="0.01" min="0" max="1" ng-model="radius_out" ng-change="updatePreview()">
+                                <input type="range"  step="0.01" min="0" max="1" ng-model="radius_end" ng-change="updatePreview()" number-input >
+                                <input type="number" step="0.01" min="0" max="1" ng-model="radius_end" ng-change="updatePreview()">
                             </div>
                             <div>
                                 <label>分割</label>

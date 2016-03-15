@@ -69,8 +69,9 @@ void ConverterWrap::Init(Local<Object> module) {
     NODE_SET_PROTOTYPE_METHOD(tpl, "makeOriginalPreviewImage", MakeOriginalPreviewImage);
     NODE_SET_PROTOTYPE_METHOD(tpl, "makeConvertedPreviewImage", MakeConvertedPreviewImage);
     NODE_SET_PROTOTYPE_METHOD(tpl, "convert", Convert);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "totalMsec", TotalMsec);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "totalFrame", TotalFrame);
     NODE_SET_PROTOTYPE_METHOD(tpl, "isOpened", IsOpened);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "fps", FPS);
 
     constructor.Reset(isolate, tpl->GetFunction());
     module->Set(String::NewFromUtf8(isolate, "exports"), tpl->GetFunction());
@@ -80,20 +81,10 @@ void ConverterWrap::New(const FunctionCallbackInfo<Value>& args) {
     Isolate* isolate = args.GetIsolate();
 
     if (args.IsConstructCall()) {
-        // Invoked as constructor: `new MyObject(...)`
         ConverterWrap* obj = new ConverterWrap();
-        /*
-        Converter* converter = obj->converter;
-        if (args[0]->IsString()) {
-            v8::String::Utf8Value src_file_utf(args[0]->ToString());
-            std::string src_file = std::string(*src_file_utf);
-            converter->open(src_file);
-        }
-        */
         obj->Wrap(args.This());
         args.GetReturnValue().Set(args.This());
     } else {
-        // Invoked as plain function `MyObject(...)`, turn into construct call.
         const int argc = 1;
         Local<Value> argv[argc] = { args[0] };
         Local<Function> cons = Local<Function>::New(isolate, constructor);
@@ -115,10 +106,10 @@ void ConverterWrap::Setup(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
     Handle<Object> data = Handle<Object>::Cast(args[0]);
 
-    if (data->Get(String::NewFromUtf8(isolate,"start_time_msec"))->IsNumber())
-        converter->startTimeMsec( data->Get(String::NewFromUtf8(isolate,"start_time_msec"))->NumberValue() );
-    if (data->Get(String::NewFromUtf8(isolate,"end_time_msec"))->IsNumber())
-        converter->endTimeMsec( data->Get(String::NewFromUtf8(isolate,"end_time_msec"))->NumberValue() );
+    if (data->Get(String::NewFromUtf8(isolate,"start_frame"))->IsNumber())
+        converter->startFrame( data->Get(String::NewFromUtf8(isolate,"start_frame"))->NumberValue() );
+    if (data->Get(String::NewFromUtf8(isolate,"end_frame"))->IsNumber())
+        converter->endFrame( data->Get(String::NewFromUtf8(isolate,"end_frame"))->NumberValue() );
     // if (data->Get(String::NewFromUtf8(isolate,"preview_time"))->IsNumber())
     //    converter->preview_time = data->Get(String::NewFromUtf8(isolate,"preview_time"))->NumberValue();
     if (data->Get(String::NewFromUtf8(isolate,"dst_width"))->IsNumber())
@@ -126,13 +117,13 @@ void ConverterWrap::Setup(const v8::FunctionCallbackInfo<v8::Value>& args) {
     if (data->Get(String::NewFromUtf8(isolate,"dst_height"))->IsNumber())
         converter->dst_height = data->Get(String::NewFromUtf8(isolate,"dst_height"))->NumberValue();
     if (data->Get(String::NewFromUtf8(isolate,"angle_start"))->IsNumber())
-        converter->angle_start = data->Get(String::NewFromUtf8(isolate,"angle_start"))->NumberValue();
+        converter->angleStart( data->Get(String::NewFromUtf8(isolate,"angle_start"))->NumberValue() );
     if (data->Get(String::NewFromUtf8(isolate,"angle_end"))->IsNumber())
-        converter->angle_end = data->Get(String::NewFromUtf8(isolate,"angle_end"))->NumberValue();
-    if (data->Get(String::NewFromUtf8(isolate,"radius_in"))->IsNumber())
-        converter->radius_in = data->Get(String::NewFromUtf8(isolate,"radius_in"))->NumberValue();
-    if (data->Get(String::NewFromUtf8(isolate,"radius_out"))->IsNumber())
-        converter->radius_out = data->Get(String::NewFromUtf8(isolate,"radius_out"))->NumberValue();
+        converter->angleEnd( data->Get(String::NewFromUtf8(isolate,"angle_end"))->NumberValue() );
+    if (data->Get(String::NewFromUtf8(isolate,"radius_start"))->IsNumber())
+        converter->radius_start = data->Get(String::NewFromUtf8(isolate,"radius_start"))->NumberValue();
+    if (data->Get(String::NewFromUtf8(isolate,"radius_end"))->IsNumber())
+        converter->radius_end = data->Get(String::NewFromUtf8(isolate,"radius_end"))->NumberValue();
     if (data->Get(String::NewFromUtf8(isolate,"n_split"))->IsNumber())
         converter->n_split  = data->Get(String::NewFromUtf8(isolate,"n_split"))->NumberValue();
     args.GetReturnValue().Set(args.This());
@@ -185,11 +176,11 @@ void ConverterWrap::Convert(const v8::FunctionCallbackInfo<v8::Value>& args) {
     args.GetReturnValue().Set(Undefined(isolate));
 }
 
-void ConverterWrap::TotalMsec(const v8::FunctionCallbackInfo<v8::Value>& args) {
+void ConverterWrap::TotalFrame(const v8::FunctionCallbackInfo<v8::Value>& args) {
     Isolate* isolate = args.GetIsolate();
     Converter* converter = ObjectWrap::Unwrap<ConverterWrap>(args.Holder())->converter;
-    double totalMsec = converter->totalMsec();
-    args.GetReturnValue().Set(Number::New(isolate, totalMsec));
+    double totalFrame = converter->totalFrame();
+    args.GetReturnValue().Set(Number::New(isolate, totalFrame));
 }
 
 void ConverterWrap::IsOpened(const v8::FunctionCallbackInfo<v8::Value>& args) {
@@ -197,4 +188,11 @@ void ConverterWrap::IsOpened(const v8::FunctionCallbackInfo<v8::Value>& args) {
     Converter* converter = ObjectWrap::Unwrap<ConverterWrap>(args.Holder())->converter;
     bool isOpened = converter->isOpened();
     args.GetReturnValue().Set(Boolean::New(isolate, isOpened));
+}
+
+void ConverterWrap::FPS(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    Isolate* isolate = args.GetIsolate();
+    Converter* converter = ObjectWrap::Unwrap<ConverterWrap>(args.Holder())->converter;
+    double fps = converter->fps();
+    args.GetReturnValue().Set(Number::New(isolate, fps));
 }

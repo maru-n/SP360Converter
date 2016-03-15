@@ -30,8 +30,9 @@ class ConverterWrap : public node::ObjectWrap {
         static void MakeOriginalPreviewImage(const v8::FunctionCallbackInfo<v8::Value>& args);
         static void MakeConvertedPreviewImage(const v8::FunctionCallbackInfo<v8::Value>& args);
         static void Convert(const v8::FunctionCallbackInfo<v8::Value>& args);
-        static void TotalMsec(const v8::FunctionCallbackInfo<v8::Value>& args);
+        static void TotalFrame(const v8::FunctionCallbackInfo<v8::Value>& args);
         static void IsOpened(const v8::FunctionCallbackInfo<v8::Value>& args);
+        static void FPS(const v8::FunctionCallbackInfo<v8::Value>& args);
     };
 
 #endif

@@ -18,12 +18,12 @@ Recomended build without ffmpeg by cmake option "-DWITH_FFMPEG=OFF" for working 
 
 ### Build
 
-Build native addon
+Build, rebuild, clean and cofigure native addon.
 ```
-$ npm run build:cpp
+$ npm run module:[build|rebuild|clean|configure]
 ```
 
-Then run in by
+Start app.
 ```
 $ npm start
 ```

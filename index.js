@@ -1,8 +1,8 @@
 'use strict';
 
 var remote = require('remote');
-//var Converter = remote.require('./cpp/build/Release/converter');
-var Converter = require('./cpp/build/Release/converter');
+//var Converter = remote.require('./module/build/Release/converter');
+var Converter = require('./module/build/Release/converter');
 var Package = require('./package.json');
 
 var Menu = remote.require('menu');
@@ -38,24 +38,40 @@ SP360ConverterApp.directive('numberInput', function() {
     };
 });
 
+SP360ConverterApp.directive('frame2sec', function() {
+    return {
+        require: 'ngModel',
+        link: function(scope, element, attrs, ngModel) {
+            ngModel.$parsers.push(function(value) {
+                return Math.ceil(value * scope.fps);
+            });
+            ngModel.$formatters.push(function (value) {
+               return value / scope.fps;
+           });
+        }
+    };
+});
+
+
 SP360ConverterApp.controller('MainController', ['$scope', '$q', '$timeout', 'electron',
 function($scope, $q, $timeout, electron) {
     var converter = new Converter();
     var BrowserWindow = electron.browserWindow;
     var Dialog = electron.dialog;
 
+    $scope.fps = 30;
+
     $scope.src_file     = "";
     $scope.dst_file     = "";
-    $scope.start_time   = 0;
-    $scope.end_time     = 1000;
-    $scope.all_time_check = false;
-    $scope.preview_time = 0;
+    $scope.start_frame  = 0;
+    $scope.end_frame    = 300;
+    $scope.is_all_frame = false;
     $scope.dst_width    = 1280;
     $scope.dst_height   = 720;
     $scope.angle_start  = 0;
     $scope.angle        = 360;
-    $scope.radius_in    = 0.0;
-    $scope.radius_out   = 1.0
+    $scope.radius_start = 0.0;
+    $scope.radius_end   = 1.0
     $scope.n_split_choices = [1, 2];
     $scope.n_split     = $scope.n_split_choices[0];
     $scope.resolutions = [
@@ -88,24 +104,22 @@ function($scope, $q, $timeout, electron) {
 
     var updateConverter = function() {
         converter.setup({
-            start_time_msec:   $scope.start_time,
-            end_time_msec:     $scope.end_time,
-            preview_time_msec: $scope.preview_time,
-            dst_width:         $scope.resolution.width,
-            dst_height:        $scope.resolution.height,
-            radius_in:         $scope.radius_in,
-            radius_out:        $scope.radius_out,
-            angle_start:       $scope.angle_start * 2.0 * Math.PI / 360.0,
-            angle_end:        ($scope.angle_start + $scope.angle) * 2.0 * Math.PI / 360.0,
-            n_split:           $scope.n_split,
+            start_frame:  $scope.start_frame,
+            end_frame:    $scope.end_frame,
+            dst_width:    $scope.resolution.width,
+            dst_height:   $scope.resolution.height,
+            radius_start: $scope.radius_start,
+            radius_end:   $scope.radius_end,
+            angle_start:  $scope.angle_start * 2.0 * Math.PI / 360.0,
+            angle_end:    ($scope.angle_start + $scope.angle) * 2.0 * Math.PI / 360.0,
+            n_split:      $scope.n_split,
         });
     }
 
     $scope.changeAllTime = function() {
-        if ($scope.all_time_check && converter.isOpened()) {
-            console.log(converter.totalMsec());
-            $scope.start_time = 0;
-            $scope.end_time = Math.ceil(converter.totalMsec());
+        if ($scope.is_all_frame && converter.isOpened()) {
+            $scope.start_frame = 0;
+            $scope.end_frame = converter.totalFrame();
         }
     }
 
@@ -145,7 +159,7 @@ function($scope, $q, $timeout, electron) {
         var deferred = $q.defer()
         var options = {
             filters: [
-                { name: 'Movies', extensions: ['mp4'] },
+                { name: 'Movies', extensions: ['mp4','mov'] },
             ]};
         Dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), options, function(filenames){
             if (filenames) {
@@ -157,6 +171,7 @@ function($scope, $q, $timeout, electron) {
             converter.open(filenames[0]);
             $scope.changeAllTime();
             $scope.updatePreview();
+            $scope.fps = converter.fps();
         });
     };
 
