@@ -23,14 +23,18 @@
                                 </button>
                             </div>
                             <div>
-                                <label>時刻</label>
-                                <input type="radio" ng-model="time_unit" value="msec" ng-change="changeTiemUnit()">msec
-                                <input type="radio" ng-model="time_unit" value="frame" ng-change="changeTiemUnit()">frame
-                                <input type="number" min="0" ng-disabled="all_time_check" ng-model="start_time">
+                                <input type="number" min="0" ng-disabled="is_all_frame" ng-model="start_frame">
                                 ~
-                                <input type="number" min="0" ng-disabled="all_time_check" ng-model="end_time">
-                                <label>全て</label>
-                                <input type="checkbox" ng-model="all_time_check" ng-change="changeAllTime()">
+                                <input type="number" min="0" ng-disabled="is_all_frame" ng-model="end_frame">
+                                フレーム
+                                <br>
+                                <input type="number" min="0" ng-disabled="is_all_frame" ng-model="start_frame" frame2sec>
+                                ~
+                                <input type="number" min="0" ng-disabled="is_all_frame" ng-model="end_frame" frame2sec>
+                                秒
+                                <br>
+                                全て
+                                <input type="checkbox" ng-model="is_all_frame" ng-change="changeAllTime()">
                             </div>
                             <div>
                                 <label>開始角度</label>

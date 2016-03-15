@@ -14,7 +14,6 @@ namespace SP360
     {
         this->n_points_w = 1024;
         this->n_points_h = 225;
-        this->_preview_time_msec = 0;
     }
 
     Converter::~Converter() {}
@@ -25,7 +24,7 @@ namespace SP360
         this->_width = videoCapture.get(CAP_PROP_FRAME_WIDTH);
         this->_height = videoCapture.get(CAP_PROP_FRAME_HEIGHT);
 
-        videoCapture.set(CAP_PROP_POS_MSEC, _preview_time_msec);
+        videoCapture.set(CAP_PROP_POS_FRAMES, 0);
         Mat tmp_img;
         videoCapture >> tmp_img;
         if( tmp_img.empty() ) {
@@ -91,11 +90,13 @@ namespace SP360
         int fourcc = static_cast<int>(videoCapture.get(CV_CAP_PROP_FOURCC));
         VideoWriter writer(filename, fourcc, this->fps(), Size(dst_width, dst_height));
 
-        videoCapture.set(CAP_PROP_POS_MSEC, _start_time_msec);
+        videoCapture.set(CAP_PROP_POS_FRAMES, _start_frame);
         Mat frame;
         while (1) {
-            double current_time_msec = videoCapture.get(CAP_PROP_POS_MSEC);
-            if (current_time_msec > _end_time_msec) {
+            double current_frame = videoCapture.get(CAP_PROP_POS_FRAMES);
+            // std::cout << "fram:" << videoCapture.get(CAP_PROP_POS_FRAMES)
+            // << " / msec:" << videoCapture.get(CAP_PROP_POS_MSEC) << std::endl;
+            if (current_frame > _end_frame) {
                 break;
             }
             videoCapture >> frame;
@@ -104,7 +105,7 @@ namespace SP360
             Mat new_frame = Mat(dst_height, dst_width, frame.type());
             convertImage(frame, new_frame);
             writer << new_frame;
-            float progress = (current_time_msec - _start_time_msec) / (_end_time_msec - _start_time_msec);
+            float progress = (current_frame - _start_frame) / (_end_frame - _start_frame);
             progress_callback(progress);
         }
         return 0;

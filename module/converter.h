@@ -29,14 +29,11 @@ namespace SP360
         int width() { return _width;};
         int height() { return _height;};
 
-        double startTimeMsec() { return _start_time_msec; };
-        void   startTimeMsec(double ms){ this->_start_time_msec = ms; };
-        int    startFrame() { return int(_start_time_msec * this->fps() / 1000.0);}
-        void   startFrame(int fn){ this->_start_time_msec = 1000.0 * fn / this->fps(); };
-        double endTimeMsec() { return _end_time_msec; };
-        void   endTimeMsec(double ms){ this->_end_time_msec = ms; };
-        int    endFrame() { return int(_end_time_msec * this->fps() / 1000.0);}
-        void   endFrame(int fn){ this->_end_time_msec = 1000.0 * fn / this->fps(); };
+        unsigned long    startFrame() {return _start_frame;}
+        void             startFrame(unsigned long f){ this->_start_frame = f;};
+        unsigned long    endFrame() {return _end_frame;}
+        void             endFrame(unsigned long f){ this->_end_frame = f; };
+
         void   angleStart(double th){ this->_angle_start = th;};
         double angleStart() { return this->_angle_start; };
         void   angleEnd(double th){ this->_angle_end = th;};
@@ -44,16 +41,16 @@ namespace SP360
 
         bool isOpened(){ return videoCapture.isOpened();}
 
-        double totalMsec(){return 1000.0 * this->totalFrame() / this->fps();};
         double totalFrame(){return videoCapture.get(cv::CAP_PROP_FRAME_COUNT);};
         double fps(){return videoCapture.get(cv::CAP_PROP_FPS);};
 
     private:
+        //double frameToMsec(int f){return }
         void convertImage(cv::Mat src_img, cv::Mat dst_img);
 
         cv::VideoCapture videoCapture;
         cv::Mat previewImage;
-        double _start_time_msec, _end_time_msec, _preview_time_msec;
+        unsigned long _start_frame, _end_frame;
         int _width, _height;
         double _angle_start, _angle_end;
     };
