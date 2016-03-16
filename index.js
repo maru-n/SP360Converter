@@ -72,7 +72,7 @@ function($scope, $q, $timeout, electron) {
     $scope.angle        = 360;
     $scope.radius_start = 0.0;
     $scope.radius_end   = 1.0
-    $scope.n_split_choices = [1, 2];
+    $scope.n_split_choices = [1, 2, 4];
     $scope.n_split     = $scope.n_split_choices[0];
     $scope.resolutions = [
         {name:'VGA          640x480 ', width:640, height:480, aspect:4/3 },
@@ -103,6 +103,14 @@ function($scope, $q, $timeout, electron) {
     var convertedPreviewContext = convertedPreviewCanvas.getContext('2d');
 
     var updateConverter = function() {
+        var split_x = 1;
+        var split_y = 1;
+        if ($scope.n_split == 2) {
+            split_y = 2;
+        } else if ($scope.n_split == 4) {
+            split_x = 2;
+            split_y = 2;
+        }
         converter.setup({
             start_frame:  $scope.start_frame,
             end_frame:    $scope.end_frame,
@@ -112,7 +120,8 @@ function($scope, $q, $timeout, electron) {
             radius_end:   $scope.radius_end,
             angle_start:  $scope.angle_start * 2.0 * Math.PI / 360.0,
             angle_end:    ($scope.angle_start + $scope.angle) * 2.0 * Math.PI / 360.0,
-            n_split:      $scope.n_split,
+            split_x:      split_x,
+            split_y:      split_y,
         });
     }
 

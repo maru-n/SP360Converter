@@ -11,9 +11,6 @@ namespace SP360
     public:
         unsigned int dst_width;
         unsigned int dst_height;
-        double radius_start;
-        double radius_end;
-        int n_split;
 
         int n_points_w;
         int n_points_h;
@@ -39,24 +36,38 @@ namespace SP360
         void   angleEnd(double th){ this->_angle_end = th;};
         double angleEnd() { return this->_angle_end; };
 
+        void   radiusStart(double r){ this->_radius_start = r;};
+        double radiusStart(){ return this->_radius_start;};
+        void   radiusEnd(double r){ this->_radius_end = r;};
+        double radiusEnd(){ return this->_radius_end;};
+
+        void splitX(int n){ this->_split_x = n;};
+        void splitY(int n){ this->_split_y = n;};
+
         bool isOpened(){ return videoCapture.isOpened();}
 
         double totalFrame(){return videoCapture.get(cv::CAP_PROP_FRAME_COUNT);};
         double fps(){return videoCapture.get(cv::CAP_PROP_FPS);};
 
     private:
-        //double frameToMsec(int f){return }
         void convertImage(cv::Mat src_img, cv::Mat dst_img);
+        cv::Point calcOriginalPoint(cv::Point converted_pos, cv::MatSize converted_size,
+                                cv::MatSize original_size,
+                                double start_r, double start_th,
+                                double end_r, double end_th);
 
         cv::VideoCapture videoCapture;
         cv::Mat previewImage;
         unsigned long _start_frame, _end_frame;
         int _width, _height;
+        double _radius_start, _radius_end;
         double _angle_start, _angle_end;
+        int _split_x, _split_y;
+        bool _split_order_row;
     };
 
     // TODO: Legacy function
-    cv::Point calcOriginalPoint(cv::Point converted_pos, cv::MatSize original_size, cv::MatSize converted_size,
-        double angle_start, double angle_end, double radius_in, double radius_out, int n_split);
+    // cv::Point calcOriginalPoint(cv::Point converted_pos, cv::MatSize original_size, cv::MatSize converted_size,
+    //     double angle_start, double angle_end, double radius_in, double radius_out, int n_split);
 }
 #endif // CONVERTER_H
