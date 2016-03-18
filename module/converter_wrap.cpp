@@ -107,25 +107,57 @@ void ConverterWrap::Setup(const v8::FunctionCallbackInfo<v8::Value>& args) {
     Handle<Object> data = Handle<Object>::Cast(args[0]);
 
     if (data->Get(String::NewFromUtf8(isolate,"start_frame"))->IsNumber())
-        converter->startFrame( data->Get(String::NewFromUtf8(isolate,"start_frame"))->NumberValue() );
+        converter->startFrame(data->Get(String::NewFromUtf8(isolate,"start_frame"))->NumberValue());
+
     if (data->Get(String::NewFromUtf8(isolate,"end_frame"))->IsNumber())
-        converter->endFrame( data->Get(String::NewFromUtf8(isolate,"end_frame"))->NumberValue() );
-    // if (data->Get(String::NewFromUtf8(isolate,"preview_time"))->IsNumber())
-    //    converter->preview_time = data->Get(String::NewFromUtf8(isolate,"preview_time"))->NumberValue();
+        converter->endFrame(data->Get(String::NewFromUtf8(isolate,"end_frame"))->NumberValue());
+
     if (data->Get(String::NewFromUtf8(isolate,"dst_width"))->IsNumber())
         converter->dst_width = data->Get(String::NewFromUtf8(isolate,"dst_width"))->NumberValue();
+
     if (data->Get(String::NewFromUtf8(isolate,"dst_height"))->IsNumber())
         converter->dst_height = data->Get(String::NewFromUtf8(isolate,"dst_height"))->NumberValue();
+
     if (data->Get(String::NewFromUtf8(isolate,"angle_start"))->IsNumber())
-        converter->angleStart( data->Get(String::NewFromUtf8(isolate,"angle_start"))->NumberValue() );
+        converter->angleStart(data->Get(String::NewFromUtf8(isolate,"angle_start"))->NumberValue());
+
     if (data->Get(String::NewFromUtf8(isolate,"angle_end"))->IsNumber())
-        converter->angleEnd( data->Get(String::NewFromUtf8(isolate,"angle_end"))->NumberValue() );
+        converter->angleEnd(data->Get(String::NewFromUtf8(isolate,"angle_end"))->NumberValue());
+
     if (data->Get(String::NewFromUtf8(isolate,"radius_start"))->IsNumber())
-        converter->radius_start = data->Get(String::NewFromUtf8(isolate,"radius_start"))->NumberValue();
+        converter->radiusStart(data->Get(String::NewFromUtf8(isolate,"radius_start"))->NumberValue());
+
     if (data->Get(String::NewFromUtf8(isolate,"radius_end"))->IsNumber())
-        converter->radius_end = data->Get(String::NewFromUtf8(isolate,"radius_end"))->NumberValue();
-    if (data->Get(String::NewFromUtf8(isolate,"n_split"))->IsNumber())
-        converter->n_split  = data->Get(String::NewFromUtf8(isolate,"n_split"))->NumberValue();
+        converter->radiusEnd(data->Get(String::NewFromUtf8(isolate,"radius_end"))->NumberValue());
+
+    if (data->Get(String::NewFromUtf8(isolate,"split_x"))->IsNumber())
+        converter->splitX(data->Get(String::NewFromUtf8(isolate,"split_x"))->NumberValue());
+
+    if (data->Get(String::NewFromUtf8(isolate,"split_y"))->IsNumber())
+        converter->splitY(data->Get(String::NewFromUtf8(isolate,"split_y"))->NumberValue());
+
+    if (data->Get(String::NewFromUtf8(isolate,"aspect"))->IsNumber())
+        converter->aspect(data->Get(String::NewFromUtf8(isolate,"aspect"))->NumberValue());
+
+    if (data->Get(String::NewFromUtf8(isolate,"fov"))->IsNumber())
+        converter->fov(data->Get(String::NewFromUtf8(isolate,"fov"))->NumberValue());
+
+    if (data->Get(String::NewFromUtf8(isolate,"center_angle"))->IsNumber())
+        converter->centerAngle(data->Get(String::NewFromUtf8(isolate,"center_angle"))->NumberValue());
+
+    if (data->Get(String::NewFromUtf8(isolate,"center_radius"))->IsNumber())
+        converter->centerRadius(data->Get(String::NewFromUtf8(isolate,"center_radius"))->NumberValue());
+
+    if (data->Get(String::NewFromUtf8(isolate,"projection_type"))->IsString()) {
+        v8::String::Utf8Value type_utf(data->Get(String::NewFromUtf8(isolate,"projection_type"))->ToString());
+        std::string type = std::string(*type_utf);
+        if (type == "central") {
+            converter->projectionType(CENTRAL_PROJECTION);
+        } else if (type == "equirectangular") {
+            converter->projectionType(EQUIRECTANGULAR_PROJECTION);
+        }
+    }
+
     args.GetReturnValue().Set(args.This());
 }
 

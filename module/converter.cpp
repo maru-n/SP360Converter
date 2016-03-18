@@ -14,6 +14,7 @@ namespace SP360
     {
         this->n_points_w = 1024;
         this->n_points_h = 225;
+        this->_split_order_row = false;
     }
 
     Converter::~Converter() {}
@@ -44,7 +45,7 @@ namespace SP360
         if (!border) { return 0; }
 
         Mat bd_img(n_points_h, n_points_w, CV_8U);
-        for (int s = 0; s < n_split; s++) {
+        for (int s = 0; s < _split_x*_split_y; s++) {
             for (int n = 0; n < bd_img.size[1]*2 + bd_img.size[0]*2 - 4; n++) {
                 int i, j;
                 if (n < bd_img.size[1]) {
@@ -60,19 +61,13 @@ namespace SP360
                     i = 0;
                     j = n - bd_img.size[0] - bd_img.size[1]*2 + 3;
                 }
-                double split_angle_start = _angle_start + (_angle_end - _angle_start) * s / n_split;
-                double split_angle_end = split_angle_start + (_angle_end - _angle_start) / n_split;
-                Point point = calcOriginalPoint(Point(i, j), dst_img.size, bd_img.size,
-                                split_angle_start, split_angle_end,
-                                radius_start, radius_end,
-                                1);
+                Point point = calcOriginalPoint(Point(i, j), bd_img.size, dst_img.size, s);
                 int idx = point.x + point.y*dst_img.size[1];
                 dst_img.data[idx*4+0] = 255;
                 dst_img.data[idx*4+1] = 0;
                 dst_img.data[idx*4+2] = 0;
             }
         }
-
         return 0;
     }
 
@@ -114,41 +109,88 @@ namespace SP360
     void Converter::convertImage(cv::Mat src_img, cv::Mat dst_img)
     {
         int channels = src_img.channels();
-        for (int j = 0; j < dst_img.rows; j++) {
-            for (int i = 0; i < dst_img.cols; i++) {
-                Point dst_point = Point(i, j);
-                Point src_point = calcOriginalPoint(dst_point, src_img.size, dst_img.size,
-                                    _angle_start, _angle_end,
-                                    radius_start, radius_end,
-                                    n_split);
-                for (int c = 0; c < channels; c++) {
-                    int dst_idx = channels * (dst_point.x + dst_point.y * dst_img.cols) + c;
-                    int src_idx = channels * (src_point.x + src_point.y * src_img.cols) + c;
-                    dst_img.data[dst_idx] = src_img.data[src_idx];
+        Mat dst_img_window(dst_img.rows/_split_y, dst_img.cols/_split_x, CV_8U);
+        for (int sx = 0; sx < _split_x; sx++) {
+            for (int sy = 0; sy < _split_y; sy++) {
+                int x_offset = dst_img_window.cols * sx;
+                int y_offset = dst_img_window.rows * sy;
+                int s;
+                if (_split_order_row) {
+                    s = sy + sx * _split_y;
+                } else {
+                    s = sx + sy * _split_x;
+                }
+                for (int j = 0; j < dst_img_window.rows; j++) {
+                    for (int i = 0; i < dst_img_window.cols; i++) {
+                        Point dst_point = Point(i,j);
+                        Point src_point = calcOriginalPoint(dst_point, dst_img_window.size, src_img.size, s);
+                        for (int c = 0; c < channels; c++) {
+                            int dst_idx = channels * (dst_point.x+x_offset + (dst_point.y+y_offset) * dst_img.cols) + c;
+                            int src_idx = channels * (src_point.x + src_point.y * src_img.cols) + c;
+                            dst_img.data[dst_idx] = src_img.data[src_idx];
+                        }
+                    }
                 }
             }
         }
     }
 
-    // TODO: Legacy function
-    Point calcOriginalPoint(Point converted_pos,
-                            MatSize original_size, MatSize converted_size,
-                            double angle_start, double angle_end,
-                            double radius_start, double radius_end,
-                            int n_split)
+    Point originalImageProjection(double th, double ph, double R)
     {
-        double R = original_size[0] / 2.0;
-        int w = converted_size[1];
-        int h = converted_size[0];
-        int pan_w = w * n_split;
-        int pan_h = h / n_split;
-        int split_row = converted_pos.y * n_split / h;
-        double pan_i = converted_pos.x + w * split_row;
-        double pan_j = converted_pos.y - h * split_row / n_split;
-        double r = R * (radius_start + (radius_end - radius_start) * pan_j / pan_h);
-        double th = angle_start + (angle_end - angle_start) * pan_i / pan_w;
-        int src_i = R + r * cos(th);
-        int src_j = R - r * sin(th);
-        return Point(src_i,src_j);
+        double i = R + R * th / SP360_LAMBDA_ANGLE * cos(ph);
+        double j = R - R * th / SP360_LAMBDA_ANGLE * sin(ph);
+        return Point(i, j);
+    }
+
+    Point equirectangularProjection(Point converted_pos, MatSize converted_size, double R,
+                                  double start_r, double start_th,
+                                  double end_r, double end_th)
+    {
+        double th = SP360_LAMBDA_ANGLE * (start_r + (end_r - start_r) * converted_pos.y / converted_size[0]);
+        double ph = start_th + (end_th - start_th) * converted_pos.x / converted_size[1];
+        return originalImageProjection(th, ph, R);
+    }
+
+    Point centralProjection(Point converted_pos, MatSize converted_size, double R,
+                                  double center_th, double center_ph,
+                                  double aspect, double fov)
+    {
+        double u = (converted_pos.x - converted_size[1]/2.0) / converted_size[1] * aspect;
+        double v = (converted_pos.y - converted_size[0]/2.0) / converted_size[0];
+        double w = sqrt(1 + aspect*aspect) / 2.0 / tan(fov/2.0);
+        double lm1 = center_ph;
+        double lm2 = center_th;
+        double x = R/sqrt(u*u+v*v+w*w) * ( u*cos(lm2) + v*cos(lm1)*sin(lm2) + w*sin(lm1)*sin(lm2));
+        double y = R/sqrt(u*u+v*v+w*w) * (-u*sin(lm2) + v*cos(lm1)*cos(lm2) + w*sin(lm1)*cos(lm2));
+
+        double ph = atan2(y, x);
+        double th = asin(sqrt(x*x+y*y)/R);
+        return originalImageProjection(th, ph, R);
+
+        //return Point(R+x, R-y);
+    }
+
+    Point Converter::calcOriginalPoint(Point converted_pos, MatSize converted_size,
+                                       MatSize original_size, int split_idx)
+    {
+        Point p;
+        int split_num = _split_x * _split_y;
+        double R = original_size[1] / 2.0;
+        switch(this->_projection_type) {
+            case CENTRAL_PROJECTION:
+                p = centralProjection(converted_pos, converted_size, R,
+                    _center_angle + M_PI*2.0*split_idx/split_num, _center_radius*M_PI/SP360_LAMBDA_ANGLE,
+                    _aspect * _split_y / _split_x, _fov);
+                break;
+            case EQUIRECTANGULAR_PROJECTION:
+            default:
+                double start_r = _radius_start;
+                double end_r = _radius_end;
+                double start_th = _angle_start + split_idx * (_angle_end - _angle_start) / split_num;
+                double end_th = _angle_start + (split_idx+1) * (_angle_end - _angle_start) / split_num;
+                p = equirectangularProjection(converted_pos, converted_size, R, start_r, start_th, end_r, end_th);
+                break;
+        }
+        return p;
     }
 }

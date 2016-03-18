@@ -24,11 +24,11 @@ app.on('ready', function() {
 
 function openWindow() {
     mainWindow = new BrowserWindow({
-        'width': 800,
+        'width': 750,
         'height': 650,
-        'max-width': 800,
+        'max-width': 750,
         'max-height': 650,
-        'min-width': 800,
+        'min-width': 750,
         'min-height': 650
     });
     mainWindow.loadURL('file://' + __dirname + '/index.html');

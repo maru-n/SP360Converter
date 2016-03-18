@@ -72,7 +72,7 @@ function($scope, $q, $timeout, electron) {
     $scope.angle        = 360;
     $scope.radius_start = 0.0;
     $scope.radius_end   = 1.0
-    $scope.n_split_choices = [1, 2];
+    $scope.n_split_choices = [1, 2, 4];
     $scope.n_split     = $scope.n_split_choices[0];
     $scope.resolutions = [
         {name:'VGA          640x480 ', width:640, height:480, aspect:4/3 },
@@ -80,11 +80,21 @@ function($scope, $q, $timeout, electron) {
         {name:'HD+         1600x900 ', width:1600, height:900, aspect:16/9 },
         {name:'HD (720p)   1280x720 ', width:1280, height:720, aspect:16/9 },
         {name:'FHD (1080p) 1920x1080', width:1920, height:1080, aspect:16/9 },
-        {name:'パノラマ     1200x400 ', width:1200, height:400, aspect:3/1 },
+        {name:'パノラマ     1440x428 ', width:1440, height:428, aspect:1440/428 }, //FOV of SP360 is 360x214 dgree.
     ];
     $scope.resolution = $scope.resolutions[0];
 
     $scope.convert_progress = 0.0;
+
+    $scope.projection_types = [
+        {name:"通常", value:"equirectangular"},
+        {name:"歪み補正", value:"central"}
+    ];
+    $scope.projection_type = $scope.projection_types[0];
+
+    $scope.fov = 80;
+    $scope.center_angle = 0;
+    $scope.center_radius = 0.6;
 
 
     var originalPreviewWidth = 225;
@@ -103,7 +113,16 @@ function($scope, $q, $timeout, electron) {
     var convertedPreviewContext = convertedPreviewCanvas.getContext('2d');
 
     var updateConverter = function() {
+        var split_x = 1;
+        var split_y = 1;
+        if ($scope.n_split == 2) {
+            split_y = 2;
+        } else if ($scope.n_split == 4) {
+            split_x = 2;
+            split_y = 2;
+        }
         converter.setup({
+            projection_type: $scope.projection_type.value,
             start_frame:  $scope.start_frame,
             end_frame:    $scope.end_frame,
             dst_width:    $scope.resolution.width,
@@ -112,7 +131,12 @@ function($scope, $q, $timeout, electron) {
             radius_end:   $scope.radius_end,
             angle_start:  $scope.angle_start * 2.0 * Math.PI / 360.0,
             angle_end:    ($scope.angle_start + $scope.angle) * 2.0 * Math.PI / 360.0,
-            n_split:      $scope.n_split,
+            split_x:      split_x,
+            split_y:      split_y,
+            center_angle: $scope.center_angle * 2.0 * Math.PI / 360,
+            center_radius:$scope.center_radius,
+            fov:          $scope.fov * Math.PI / 180,
+            aspect:       $scope.resolution.aspect,
         });
     }
 
