@@ -36,7 +36,29 @@
                                 全て
                                 <input type="checkbox" ng-model="is_all_frame" ng-change="changeAllTime()">
                             </div>
+                            <br>
                             <div>
+                                <label>モード
+                                    <select ng-model="projection_type" ng-options="t.name for t in projection_types" ng-change="updatePreview()"></select>
+                                </label>
+                            </div>
+                            <div>
+                                <label>分割</label>
+                                <label ng-repeat="n in n_split_choices">
+                                    <input type="radio" name="n_split" ng-model="$parent.n_split" ng-value="n" ng-change="updatePreview()">
+                                    {{n}}
+                                </label>
+                            </div>
+                            <div>
+                                <label>解像度
+                                    <select ng-model="resolution" ng-options="r.name for r in resolutions" ng-change="updatePreview()"></select>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="parameter-component" class="grid-component">
+                            <strong>通常モードパラメター</strong>
+                            <div disabled="disabled">
                                 <label>開始角度</label>
                                 <input type="range"  min="0" max="360" ng-model="angle_start" ng-change="updatePreview()" number-input>
                                 <input type="number" min="0" max="360" ng-model="angle_start" ng-change="updatePreview()">
@@ -56,6 +78,7 @@
                                 <input type="range"  step="0.01" min="0" max="1" ng-model="radius_end" ng-change="updatePreview()" number-input >
                                 <input type="number" step="0.01" min="0" max="1" ng-model="radius_end" ng-change="updatePreview()">
                             </div>
+                            <strong>歪み補正モードパラメター</strong>
                             <div>
                                 <label>中心位置（角度）</label>
                                 <input type="range"  step="1" min="0" max="360" ng-model="center_angle" ng-change="updatePreview()" number-input >
@@ -70,23 +93,6 @@
                                 <label>画角</label>
                                 <input type="range"  step="1" min="40" max="100" ng-model="fov" ng-change="updatePreview()" number-input >
                                 <input type="number" step="1" min="40" max="100" ng-model="fov" ng-change="updatePreview()">
-                            </div>
-                            <div>
-                                <label>分割</label>
-                                <label ng-repeat="n in n_split_choices">
-                                    <input type="radio" name="n_split" ng-model="$parent.n_split" ng-value="n" ng-change="updatePreview()">
-                                    {{n}}
-                                </label>
-                            </div>
-                            <div>
-                                <label>解像度
-                                    <select ng-model="resolution" ng-options="r.name for r in resolutions" ng-change="updatePreview()"></select>
-                                </label>
-                            </div>
-                            <div>
-                                <label>投影
-                                    <select ng-model="projection_type" ng-options="t.name for t in projection_types" ng-change="updatePreview()"></select>
-                                </label>
                             </div>
                         </div>
 

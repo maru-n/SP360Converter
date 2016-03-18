@@ -92,9 +92,9 @@ function($scope, $q, $timeout, electron) {
     ];
     $scope.projection_type = $scope.projection_types[0];
 
-    $scope.fov = 30;
+    $scope.fov = 80;
     $scope.center_angle = 0;
-    $scope.center_radius = 0;
+    $scope.center_radius = 0.6;
 
 
     var originalPreviewWidth = 225;
