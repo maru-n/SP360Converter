@@ -80,11 +80,21 @@ function($scope, $q, $timeout, electron) {
         {name:'HD+         1600x900 ', width:1600, height:900, aspect:16/9 },
         {name:'HD (720p)   1280x720 ', width:1280, height:720, aspect:16/9 },
         {name:'FHD (1080p) 1920x1080', width:1920, height:1080, aspect:16/9 },
-        {name:'パノラマ     1200x400 ', width:1200, height:400, aspect:3/1 },
+        {name:'パノラマ     1440x428 ', width:1440, height:428, aspect:1440/428 }, //FOV of SP360 is 360x214 dgree.
     ];
     $scope.resolution = $scope.resolutions[0];
 
     $scope.convert_progress = 0.0;
+
+    $scope.projection_types = [
+        {name:"通常", value:"equirectangular"},
+        {name:"歪み補正", value:"central"}
+    ];
+    $scope.projection_type = $scope.projection_types[0];
+
+    $scope.fov = 30;
+    $scope.center_angle = 0;
+    $scope.center_radius = 0;
 
 
     var originalPreviewWidth = 225;
@@ -112,6 +122,7 @@ function($scope, $q, $timeout, electron) {
             split_y = 2;
         }
         converter.setup({
+            projection_type: $scope.projection_type.value,
             start_frame:  $scope.start_frame,
             end_frame:    $scope.end_frame,
             dst_width:    $scope.resolution.width,
@@ -122,6 +133,10 @@ function($scope, $q, $timeout, electron) {
             angle_end:    ($scope.angle_start + $scope.angle) * 2.0 * Math.PI / 360.0,
             split_x:      split_x,
             split_y:      split_y,
+            center_angle: $scope.center_angle * 2.0 * Math.PI / 360,
+            center_radius:$scope.center_radius,
+            fov:          $scope.fov * Math.PI / 180,
+            aspect:       $scope.resolution.aspect,
         });
     }
 

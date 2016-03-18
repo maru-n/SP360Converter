@@ -111,8 +111,6 @@ void ConverterWrap::Setup(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
     if (data->Get(String::NewFromUtf8(isolate,"end_frame"))->IsNumber())
         converter->endFrame(data->Get(String::NewFromUtf8(isolate,"end_frame"))->NumberValue());
-    // if (data->Get(String::NewFromUtf8(isolate,"preview_time"))->IsNumber())
-    //    converter->preview_time = data->Get(String::NewFromUtf8(isolate,"preview_time"))->NumberValue();
 
     if (data->Get(String::NewFromUtf8(isolate,"dst_width"))->IsNumber())
         converter->dst_width = data->Get(String::NewFromUtf8(isolate,"dst_width"))->NumberValue();
@@ -137,6 +135,28 @@ void ConverterWrap::Setup(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
     if (data->Get(String::NewFromUtf8(isolate,"split_y"))->IsNumber())
         converter->splitY(data->Get(String::NewFromUtf8(isolate,"split_y"))->NumberValue());
+
+    if (data->Get(String::NewFromUtf8(isolate,"aspect"))->IsNumber())
+        converter->aspect(data->Get(String::NewFromUtf8(isolate,"aspect"))->NumberValue());
+
+    if (data->Get(String::NewFromUtf8(isolate,"fov"))->IsNumber())
+        converter->fov(data->Get(String::NewFromUtf8(isolate,"fov"))->NumberValue());
+
+    if (data->Get(String::NewFromUtf8(isolate,"center_angle"))->IsNumber())
+        converter->centerAngle(data->Get(String::NewFromUtf8(isolate,"center_angle"))->NumberValue());
+
+    if (data->Get(String::NewFromUtf8(isolate,"center_radius"))->IsNumber())
+        converter->centerRadius(data->Get(String::NewFromUtf8(isolate,"center_radius"))->NumberValue());
+
+    if (data->Get(String::NewFromUtf8(isolate,"projection_type"))->IsString()) {
+        v8::String::Utf8Value type_utf(data->Get(String::NewFromUtf8(isolate,"projection_type"))->ToString());
+        std::string type = std::string(*type_utf);
+        if (type == "central") {
+            converter->projectionType(CENTRAL_PROJECTION);
+        } else if (type == "equirectangular") {
+            converter->projectionType(EQUIRECTANGULAR_PROJECTION);
+        }
+    }
 
     args.GetReturnValue().Set(args.This());
 }
